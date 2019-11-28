@@ -31,8 +31,8 @@ public class Crawler {
     private String subdomain;
     private String msg = "";
 
-    private static final String badhabit = "https://badhabitsstore.vn/";
-    private static final String k300 = "https://k300shop.com/";
+    private static final String badhabit = "badhabitsstore.vn";
+    private static final String k300 = "k300shop.com";
 
     public Crawler(ServletContext context, String url) {
         this.context = context;
@@ -49,8 +49,9 @@ public class Crawler {
         System.out.println("Đang cào: " + url);
         System.out.println("Processing...............");
         System.out.println("Prefix: " + prefix);
+        System.out.println("Domain: " + domain);
         //crawlSUCKHOE();
-        switch (url) {
+        switch (domain) {
             case badhabit:
                 msg += crawlBadhabit();
                 break;
@@ -72,9 +73,14 @@ public class Crawler {
                 .clean("<script[\\s\\S]*?>[\\s\\S]*?<\\/script>")
                 .clean("<noscript>[\\s\\S]*?</noscript>")
                 .clean("<g>[\\s\\S]*?</g>")
+                .replace("</symboy>", "</symbol>")
+                .clean("<symbol[\\s\\S]*?>[\\s\\S]*?<\\/symbol>")
+                .clean("<svg[\\s\\S]*?>[\\s\\S]*?<\\/svg>")
+                .clean("<g[\\s\\S]*?>[\\s\\S]*?<\\/g>")
                 //.clean("<!-- [\\s\\S]*? -->")
                 // .replace("&", "&amp;")
                 .toString();
+        content = XMLUtils.check(content);
         System.out.println("Body: " + content);
         return getData(content);
     }
@@ -107,19 +113,12 @@ public class Crawler {
     private int count = 0;
     public String getData(String xmlRaw) {
         try {
-            if(count == 0){
-            
-        }else if(count == 1){
-            
-        }else if(count == 2){
-            
-        }
         String xsl = getXSLPath(domain + ".xsl");
         //transform thành xml
         String xml = Transform.transform(xsl, xmlRaw);
         System.out.println("XML before validate: " + xml);
         //validate trước khi đưa vào database
-        xml = validate(xml);
+        //xml = validate(xml);
         System.out.println("XML: " + xml);
         if (xml == null) {
             return "0";
