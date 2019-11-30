@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package huyvq.connection;
+package huyvq.drawl;
 
 import static com.sun.activation.registries.LogSupport.log;
 import java.io.IOException;

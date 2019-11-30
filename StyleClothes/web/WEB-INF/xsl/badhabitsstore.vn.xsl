@@ -20,7 +20,7 @@
         <xsl:for-each select=".//li" >
             <xsl:element name="category">
                 <xsl:element name="name">
-                    <xsl:value-of select=".//a" ></xsl:value-of>
+                    <xsl:value-of select=".//a/@title" ></xsl:value-of>
                 </xsl:element>
                 <xsl:element name="link">
                     <xsl:value-of select=".//a/@href" ></xsl:value-of>

@@ -50,6 +50,9 @@ public class Product implements Serializable {
     @Basic(optional = false)
     @Column(name = "picture", nullable = false, length = 1073741823)
     private String picture;
+    @Basic(optional = false)
+    @Column(name = "link", nullable = false, length = 1073741823)
+    private String link;
     @JoinColumn(name = "type_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
     private Category typeId;
@@ -66,11 +69,12 @@ public class Product implements Serializable {
         this.id = id;
     }
 
-    public Product(String id, String name, int price, String picture) {
+    public Product(String id, String name, int price, String picture, String link) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.picture = picture;
+        this.link = link;
     }
 
     public String getId() {
@@ -105,6 +109,14 @@ public class Product implements Serializable {
         this.picture = picture;
     }
 
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+    
     public Category getTypeId() {
         return typeId;
     }
@@ -154,5 +166,6 @@ public class Product implements Serializable {
     public String toString() {
         return "huyvq.registration.Product[ id=" + id + " ]";
     }
+
     
 }
