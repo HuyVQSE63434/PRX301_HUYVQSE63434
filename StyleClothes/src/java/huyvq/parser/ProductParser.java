@@ -8,6 +8,7 @@ package huyvq.parser;
 import huyvq.drawl.HashMD5;
 import huyvq.registration.Product;
 import huyvq.registration.ProductBLO;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.xml.sax.Attributes;
@@ -22,36 +23,31 @@ public class ProductParser extends DefaultHandler {
 
     private String current;
     private Product dto;
-    private ProductBLO dao;
     private int count;
-    public String msg;
     public String fatherLink;
     public String typeId;
     private String nextLink;
+    
+    private List<Product> listProducts;
 
     public ProductParser(String cataLink, String key) {
-        dao = new ProductBLO();
+        listProducts = new ArrayList<>();
         count = 0;
         fatherLink = cataLink;
         typeId = key;
 
     }
 
+    public List<Product> getListProducts() {
+        return listProducts;
+    }
+    
     public String getNextLink() {
         return nextLink;
     }
-    
+
     public int getCount() {
         return count;
-    }
-
-    public String getMessage() {
-        return msg;
-    }
-
-    public ProductParser() {
-        dao = new ProductBLO();
-        count = 0;
     }
 
     @Override
@@ -68,27 +64,31 @@ public class ProductParser extends DefaultHandler {
         switch (current) {
             case "name":
                 dto.setName(s);
-                dto.setId(HashMD5.convertHashToString(s));
                 break;
             case "price":
                 s = s.replaceAll("[^0-9,-\\.]", ",");
                 String[] list = s.split(",");
-                dto.setPrice(Integer.valueOf(list[0]+list[1]));
+                dto.setPrice(Integer.valueOf(list[0] + list[1]));
                 break;
             case "picture":
                 dto.setPicture(s);
+                dto.setId(HashMD5.convertHashToString(s));
                 break;
             case "link":
-                dto.setLink(fatherLink+s);
+                dto.setLink(fatherLink + s);
+                break;
             case "nextlink":
                 this.nextLink = s;
+                break;
+            default:
+                break;
         }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("product")) {
-            boolean success = dao.getProducts().add(dto);
+            boolean success = listProducts.add(dto);
             if (success) {
                 count++;
             }
@@ -98,12 +98,6 @@ public class ProductParser extends DefaultHandler {
 
     @Override
     public void endDocument() throws SAXException {
-        int inserted = dao.insertAllProducts(typeId);
-        this.msg = "Cào được " + count + " sản phẩm";
-
-        this.msg += " Có " + inserted + " sản phẩm mới";
-
-        this.msg += "";
     }
 
 }

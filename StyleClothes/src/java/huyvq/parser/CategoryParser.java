@@ -28,8 +28,8 @@ public class CategoryParser extends DefaultHandler {
     private CategoryBLO dao;
     private int count;
     public String msg;
-    
-    private Map<String,String> links;
+
+    private Map<String, String> links;
     private String currentId;
 
     public int getCount() {
@@ -39,14 +39,14 @@ public class CategoryParser extends DefaultHandler {
     public String getMessage() {
         return msg;
     }
-    
-    public Map<String,String> getLinks(){
+
+    public Map<String, String> getLinks() {
         return links;
     }
 
     public CategoryParser() {
         dao = new CategoryBLO();
-        links = new HashMap<>(); 
+        links = new HashMap<>();
         count = 0;
     }
 
@@ -87,19 +87,15 @@ public class CategoryParser extends DefaultHandler {
 
     @Override
     public void endDocument() throws SAXException {
-    int inserted = dao.insertAllCategory();
-        for (Map.Entry<String, String> link : links.entrySet()) {
-            if(link.getKey().equalsIgnoreCase("NEW PRODUCT")){
-                links.remove(link.getKey());
-            }
-        }
-        this.msg = "Cào được " + count + " sản phẩm";
+        int inserted = dao.insertAllCategory();
+        links.remove("5a6bd1d1e708e5fb54993a9b994e4c9d");
+        this.msg = "\nCào được " + count + " danh mục\n";
+
+        this.msg += " Có " + inserted + " danh mục mới\n";
         
-        this.msg += " Có " + inserted + " sản phẩm mới";
-        
+        this.msg += "===============================================================================================";
+
         this.msg += "";
     }
-    
-    
 
 }

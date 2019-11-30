@@ -27,6 +27,9 @@ public class ProductBLO {
     public ProductBLO() {
         products = new ArrayList<>();
     }
+    public ProductBLO(List<Product> products) {
+        this.products = products;
+    }
 
     public List<Product> getProducts() {
         return products;
@@ -47,24 +50,12 @@ public class ProductBLO {
         }
     }
     
-    public int insertAllProducts() {
-        EntityManager em = emf.createEntityManager();
-        int count = 0;
-        for (Product category : products) {
-            Product c = em.find(Product.class, category.getId());
-            if (c == null) {
-                em.getTransaction().begin();
-                em.persist(category);
-                em.getTransaction().commit();
-                count++;
-            }
-        }
-        return count;
-    }
-    
     public Product addColor(String color, Product dto){
         EntityManager em = emf.createEntityManager();
-        Color cl = (Color) em.createQuery("SELECT r FROM color r WHERE r.vietnamName = :color OR r.englishName= :color").setParameter("color", color).getSingleResult();
+        Color cl = (Color) em.createQuery("SELECT r FROM Color r WHERE r.vietnamName = :color1 OR r.englishName= :color2")
+                .setParameter("color1", color)
+                .setParameter("color2", color)
+                .getSingleResult();
         dto.setColorId(cl);
         return dto;
     }
@@ -75,7 +66,8 @@ public class ProductBLO {
         for (Product product : products) {
             List c = em.createQuery("SELECT r FROM Product r WHERE r.picture= :picture").setParameter("picture", product.getPicture()).getResultList();
             if (c.size()==0) {
-                product.setTypeId(em.find(Category.class, typeId));
+                Category cate = em.find(Category.class, typeId);
+                product.setTypeId(cate);
                 if(product.getColorId()==null) addColor("đen", product);
                 em.getTransaction().begin();
                 em.persist(product);
@@ -83,7 +75,14 @@ public class ProductBLO {
                 count++;
             }
         }
+        System.out.println("\ncào được "+products.size()+" sản phẩm\n");
+        System.out.println("có "+count +" sản phẩm mới\n");
+        System.out.println("===============================================================================================");
         return count;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
 }
