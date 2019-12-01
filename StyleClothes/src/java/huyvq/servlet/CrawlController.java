@@ -34,6 +34,7 @@ public class CrawlController extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             String sr = crawl("https://badhabitsstore.vn/collections/all");
+            //String sr1 = crawl("https://k300shop.com");
         }
     }
 
@@ -80,7 +81,7 @@ public class CrawlController extends HttpServlet {
         if (urlPage.startsWith("http://")) {
             urlPage = urlPage.replaceFirst("http://", "");
         }
-        
+
         try {
             Crawler crawler = new Crawler(getServletContext(), urlPage);
             String result = crawler.crawl();
@@ -88,10 +89,10 @@ public class CrawlController extends HttpServlet {
             return result;
         } catch (Exception e) {
             log("Exception: " + e.getMessage());
-            
+
         }
         return "-2";
-        
+
     }
 
 }

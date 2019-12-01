@@ -23,16 +23,13 @@ public class ProductDetailParser extends DefaultHandler {
 
     private String current;
     private String color;
-    private ProductBLO blo;
 
     public String getColor() {
         return color;
     }
-    
-    
 
     public ProductDetailParser() {
-        this.blo = new ProductBLO();
+        color = "";
     }
 
     @Override
@@ -44,14 +41,25 @@ public class ProductDetailParser extends DefaultHandler {
     public void characters(char[] ch, int start, int length) throws SAXException {
         String s = new String(ch, start, length);
         switch (current) {
-            case "color":
-                color = s;
+            case "color1":
+                if (s.length() > 1) {
+                    color = s;
+                }
                 break;
+            case "color2":
+                if (s.length()>1 && color.isEmpty()) {
+                    color = s;
+                }
+                break;
+            case "soldold":
+                if (!s.isEmpty() && color.isEmpty()) {
+                    color = "undefined";
+                }
             default:
                 break;
         }
     }
-    
+
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         this.current = "";

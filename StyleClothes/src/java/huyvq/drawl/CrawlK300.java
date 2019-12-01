@@ -1,21 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package huyvq.drawl;
 
 import static com.sun.activation.registries.LogSupport.log;
-import huyvq.parser.BadhabitCategoryParser;
-import huyvq.parser.ProductDetailParser;
 import huyvq.parser.ProductParser;
+import huyvq.parser.K300CategoryParser;
+import huyvq.parser.ProductDetailParser;
 import huyvq.registration.Product;
 import huyvq.registration.ProductBLO;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
-import javax.naming.Context;
 import javax.servlet.ServletContext;
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
@@ -24,25 +18,31 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import org.xml.sax.SAXException;
 
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 /**
  *
  * @author Dell
  */
-public class CrawlBadhabit {
+public class CrawlK300 {
 
     private String url;
     private String prefix;
     private String domain;
-    private ServletContext context;
-
-    public CrawlBadhabit(String url, String prefix, String domain, ServletContext context) {
+    private ServletContext context; 
+    
+    CrawlK300(String url, String prefix, String domain, ServletContext context) {
         this.url = url;
         this.prefix = prefix;
         this.domain = domain;
         this.context = context;
     }
-
-    public String crawlBadhabit() {
+    
+    public String crawlK300() {
         String content = new RegexProcess(url)
                 .access()
                 .match("<body[\\s\\S]*?>[\\s\\S]*?<\\/body>")
@@ -58,7 +58,7 @@ public class CrawlBadhabit {
                 // .replace("&", "&amp;")
                 .toString();
         content = XMLUtils.check(content);
-        System.out.println("\nBody loaded\n");
+        System.out.println("\nBody loaded\n" );
         return getDataCategory(content);
     }
 
@@ -66,7 +66,7 @@ public class CrawlBadhabit {
 
     public String getDataCategory(String xmlRaw) {
         try {
-            String xsl = getXSLPath("badhabitsstore.xsl");
+            String xsl = getXSLPath("k300Shop.xsl");
             //transform thành xml
             String xml = Transform.transform(xsl, xmlRaw);
             System.out.println("XML before validate: " + xml);
@@ -77,7 +77,7 @@ public class CrawlBadhabit {
                 return "0";
             }
             //insert vào database 
-            BadhabitCategoryParser pasrser = new BadhabitCategoryParser();
+            K300CategoryParser pasrser = new K300CategoryParser();
             XMLUtils.parseString(xml, pasrser);
             System.out.println(pasrser.getMessage());
             Map<String, String> links = pasrser.getLinks();
@@ -100,7 +100,7 @@ public class CrawlBadhabit {
     public String validateCategory(String xml) {
         StringReader sr = new StringReader(xml);
         StreamSource xmlSource = new StreamSource(sr);
-        StreamSource xsd = new StreamSource(getXSDPath("badhabitcategory.xsd"));
+        StreamSource xsd = new StreamSource(getXSDPath("k300category.xsd"));
         try {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             //xml schema định dạng dữ liệu
@@ -108,7 +108,7 @@ public class CrawlBadhabit {
             Validator validator = schema.newValidator();
             //validate
             validator.validate(xmlSource);
-            System.out.println("validate category badhabit success");
+            System.out.println("validate category k300 success");
             return xml;
         } catch (SAXException e) {
             log("SAX" + e.getMessage());
@@ -142,13 +142,13 @@ public class CrawlBadhabit {
     private String getProduct(String cataLink, String key) {
         System.out.println("truy cập vào " + cataLink);
         String content = getContent(cataLink);
-        System.out.println("Body: " + content);
+        System.out.println("\nBody product : ");
         return getDataProduct(content, cataLink, key);
     }
 
     private String getDataProduct(String xmlRaw, String cataLink, String key) {
         try {
-            String xsl = getXSLPath("badhabitproducts.xsl");
+            String xsl = getXSLPath("k300products.xsl");
             //transform thành xml
             String xml = Transform.transform(xsl, xmlRaw);
             System.out.println("XML before validate: " + xml);
@@ -163,12 +163,12 @@ public class CrawlBadhabit {
             XMLUtils.parseString(xml, parser);
             List<Product> products = parser.getListProducts();
             System.out.println("===========================================================");
-            System.out.println("product has " + products.size() + " element \n");
+            System.out.println("product has "+products.size()+ " element \n");
             products = addColorAndInsertProduct(products, key);
             String nextLink = parser.getNextLink();
             String urlNexkLink = this.prefix + nextLink;
-            System.out.println("next page: " + nextLink);
-            return (nextLink != null) ? getProduct(urlNexkLink, key) : "\nCrawl xong link " + cataLink;
+            System.out.println("next page: " +nextLink);
+            return (nextLink != null) ? getProduct(urlNexkLink, key) : "crawl xong link" + cataLink;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -215,22 +215,22 @@ public class CrawlBadhabit {
         ProductDetailParser parser;
         for (Product product : products) {
             String link = product.getLink();
-            System.out.println("\n=======================================================================\n access link " + link + "\n");
+            System.out.println("\n=======================================================================\n access link " + link +"\n");
             String content = getContent(link);
-            System.out.println("Body: " + content);
-            String xsl = getXSLPath("badhabitproductdetails.xsl");
+            System.out.println("Body: ");
+            String xsl = getXSLPath("k300productdetails.xsl");
             //transform thành xml
             String xml = Transform.transform(xsl, content);
             System.out.println("XML before validate: " + xml);
-            xml = validateProductBh(xml, "productdetails.xsd");
+            xml = validateProductBh(xml, "productDetails.xsd");
             System.out.println("XML after validate: " + xml);
             parser = new ProductDetailParser();
             XMLUtils.parseString(xml, parser);
-            System.out.println("\ncolor: " + parser.getColor());
+            System.out.println("\ncolor: "+parser.getColor());
             try {
                 blo.addColor(parser.getColor(), product);
             } catch (Exception e) {
-                System.out.println("color can not define: " + parser.getColor());
+                System.out.println("color can not define: "+parser.getColor());
                 blo.addColor("", product);
             }
             System.out.println("\n=======================================================================\n");
@@ -240,5 +240,4 @@ public class CrawlBadhabit {
         blo.insertAllProducts(key);
         return products;
     }
-
 }

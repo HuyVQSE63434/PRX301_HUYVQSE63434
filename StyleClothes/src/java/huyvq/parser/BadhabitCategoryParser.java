@@ -21,7 +21,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @author Dell
  */
-public class CategoryParser extends DefaultHandler {
+public class BadhabitCategoryParser extends DefaultHandler {
 
     private String current;
     private Category dto;
@@ -44,7 +44,7 @@ public class CategoryParser extends DefaultHandler {
         return links;
     }
 
-    public CategoryParser() {
+    public BadhabitCategoryParser() {
         dao = new CategoryBLO();
         links = new HashMap<>();
         count = 0;
@@ -89,6 +89,8 @@ public class CategoryParser extends DefaultHandler {
     public void endDocument() throws SAXException {
         int inserted = dao.insertAllCategory();
         links.remove("5a6bd1d1e708e5fb54993a9b994e4c9d");
+        links.remove("ad225b2392b1192d4d6793d147cb174c");
+        links.remove("13bbe9a2fbb9e6b6cfa2d10a435c2979");
         this.msg = "\nCào được " + count + " danh mục\n";
 
         this.msg += " Có " + inserted + " danh mục mới\n";
