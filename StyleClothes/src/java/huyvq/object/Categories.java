@@ -29,13 +29,13 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "category"
-})
+//@XmlType(name = "", propOrder = {
+//    "category"
+//})
 @XmlRootElement(name = "categories")
 public class Categories {
 
-    protected List<Category> category;
+    protected List<huyvq.registration.Category> category;
 
     /**
      * Gets the value of the category property.
@@ -59,11 +59,17 @@ public class Categories {
      * 
      * 
      */
-    public List<Category> getCategory() {
+    public List<huyvq.registration.Category> getCategory() {
         if (category == null) {
-            category = new ArrayList<Category>();
+            category = new ArrayList<huyvq.registration.Category>();
         }
         return this.category;
     }
+
+    public void setCategory(List<huyvq.registration.Category> category) {
+        this.category = category;
+    }
+    
+    
 
 }

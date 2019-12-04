@@ -30,19 +30,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Categories }
+     * Create an instance of {@link Products }
      * 
      */
-    public Categories createCategories() {
-        return new Categories();
+    public Products createProducts() {
+        return new Products();
     }
 
     /**
-     * Create an instance of {@link Category }
+     * Create an instance of {@link Product }
      * 
      */
-    public Category createCategory() {
-        return new Category();
+    public Product createProduct() {
+        return new Product();
     }
 
 }

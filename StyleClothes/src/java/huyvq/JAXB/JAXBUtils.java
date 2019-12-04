@@ -12,8 +12,12 @@ import com.sun.tools.xjc.api.SchemaCompiler;
 import com.sun.tools.xjc.api.XJC;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
@@ -21,8 +25,13 @@ import org.xml.sax.SAXParseException;
  *
  * @author Dell
  */
-public class XJCGenerateJavaObj {
+public class JAXBUtils {
     public static void main(String[] args) {
+        
+        
+    }
+    
+    public static void genObjectByXml(String filename){
         try {
             String output = "src/java";
             SchemaCompiler sc = XJC.createSchemaCompiler();
@@ -49,7 +58,7 @@ public class XJCGenerateJavaObj {
                 }
             });
             sc.forcePackageName("huyvq.object");
-            File schema = new File("web/WEB-INF/xsd/badhabitcategory.xsd");
+            File schema = new File("web/WEB-INF/xsd/"+filename);
             InputSource is = new InputSource(schema.toURI().toString());
             sc.parseSchema(is);
             S2JJAXBModel model = sc.bind();
@@ -57,8 +66,38 @@ public class XJCGenerateJavaObj {
             code.build(new File(output));
             System.out.println("Finished");
         } catch (IOException ex) {
-            Logger.getLogger(XJCGenerateJavaObj.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JAXBUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+    }
+    
+    public static void jaxbObjectToXML(Object o) 
+    {
+        try
+        {
+            //Create JAXB Context
+            JAXBContext jaxbContext = JAXBContext.newInstance(o.getClass());
+             
+            //Create Marshaller
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+ 
+            //Required formatting??
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            
+            jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+            
+ 
+            //Print XML String to Console
+            StringWriter sw = new StringWriter();
+             
+            //Write XML to StringWriter
+            jaxbMarshaller.marshal(o, sw);
+             
+            //Verify XML Content
+            String xmlContent = sw.toString();
+            System.out.println( xmlContent );
+ 
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 }

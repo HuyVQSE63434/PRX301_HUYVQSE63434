@@ -15,7 +15,7 @@ import javax.persistence.Embeddable;
  * @author Dell
  */
 @Embeddable
-public class MixColorPK implements Serializable {
+public class MixColorPK implements Serializable{
 
     @Basic(optional = false)
     @Column(name = "main_color_id", nullable = false, length = 10)

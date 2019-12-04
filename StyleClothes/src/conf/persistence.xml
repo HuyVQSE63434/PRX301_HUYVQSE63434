@@ -9,6 +9,10 @@
     <class>huyvq.connection.registration.UserInformation</class>
     <class>huyvq.connection.registration.Product</class>
     <class>huyvq.connection.registration.Color</class>
+    <class>huyvq.registration.Category</class>
+    <class>huyvq.registration.Product</class>
+    <class>huyvq.registration.Tracing</class>
+    <class>huyvq.registration.MixColor</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:sqlserver://localhost\BigProject:1433;databaseName=BigProject"/>

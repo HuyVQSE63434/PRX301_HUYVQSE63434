@@ -37,6 +37,9 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "UserInformation.findByPhoneNumber", query = "SELECT u FROM UserInformation u WHERE u.phoneNumber = :phoneNumber")})
 public class UserInformation implements Serializable {
 
+    @Column(name = "phone_number", length = 50)
+    private String phoneNumber;
+
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -55,8 +58,6 @@ public class UserInformation implements Serializable {
     private String address;
     @Column(name = "email", length = 50)
     private String email;
-    @Column(name = "phone_number")
-    private Integer phoneNumber;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userInformation")
     private Collection<Tracing> tracingCollection;
 
@@ -122,14 +123,6 @@ public class UserInformation implements Serializable {
         this.email = email;
     }
 
-    public Integer getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(Integer phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     @XmlTransient
     public Collection<Tracing> getTracingCollection() {
         return tracingCollection;
@@ -162,6 +155,14 @@ public class UserInformation implements Serializable {
     @Override
     public String toString() {
         return "huyvq.registration.UserInformation[ id=" + id + " ]";
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
     
 }

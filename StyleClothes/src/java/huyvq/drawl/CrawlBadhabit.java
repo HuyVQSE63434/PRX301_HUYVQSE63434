@@ -170,7 +170,7 @@ public class CrawlBadhabit {
             System.out.println("next page: " + nextLink);
             return (nextLink != null) ? getProduct(urlNexkLink, key) : "\nCrawl xong link " + cataLink;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return null;
     }

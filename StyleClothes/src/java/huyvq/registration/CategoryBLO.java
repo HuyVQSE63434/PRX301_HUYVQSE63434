@@ -75,4 +75,15 @@ public class CategoryBLO {
         }
         return name;
     }
+    
+    public List<Category> getAllCategories(){
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<Category> cateList = (List<Category>)em.createNamedQuery("Category.findAll").getResultList();
+            return cateList;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
 }

@@ -26,17 +26,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "MixColor.findAll", query = "SELECT m FROM MixColor m")
-    , @NamedQuery(name = "MixColor.findByMainColorId", query = "SELECT m FROM MixColor m WHERE m.mixColorPK.mainColorId = :mainColorId")
+    , @NamedQuery(name = "MixColor.findByMainColorId", query = "SELECT m FROM MixColor m WHERE m.mixColorPK.mainColorId = :mainColorId order by m.priorities asc")
     , @NamedQuery(name = "MixColor.findByMixColorId", query = "SELECT m FROM MixColor m WHERE m.mixColorPK.mixColorId = :mixColorId")
-    , @NamedQuery(name = "MixColor.findByPriority", query = "SELECT m FROM MixColor m WHERE m.priority = :priority")})
+    , @NamedQuery(name = "MixColor.findByPriorities", query = "SELECT m FROM MixColor m WHERE m.priorities = :priorities")})
 public class MixColor implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @EmbeddedId
     protected MixColorPK mixColorPK;
     @Basic(optional = false)
-    @Column(name = "priority", nullable = false)
-    private int priority;
+    @Column(name = "priorities", nullable = false)
+    private int priorities;
     @JoinColumn(name = "main_color_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
     @ManyToOne(optional = false)
     private Color color;
@@ -51,9 +51,9 @@ public class MixColor implements Serializable {
         this.mixColorPK = mixColorPK;
     }
 
-    public MixColor(MixColorPK mixColorPK, int priority) {
+    public MixColor(MixColorPK mixColorPK, int priorities) {
         this.mixColorPK = mixColorPK;
-        this.priority = priority;
+        this.priorities = priorities;
     }
 
     public MixColor(String mainColorId, String mixColorId) {
@@ -68,12 +68,12 @@ public class MixColor implements Serializable {
         this.mixColorPK = mixColorPK;
     }
 
-    public int getPriority() {
-        return priority;
+    public int getPriorities() {
+        return priorities;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
+    public void setPriorities(int priorities) {
+        this.priorities = priorities;
     }
 
     public Color getColor() {

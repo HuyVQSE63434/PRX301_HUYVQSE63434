@@ -33,8 +33,18 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Product.findById", query = "SELECT p FROM Product p WHERE p.id = :id")
     , @NamedQuery(name = "Product.findByName", query = "SELECT p FROM Product p WHERE p.name = :name")
     , @NamedQuery(name = "Product.findByPrice", query = "SELECT p FROM Product p WHERE p.price = :price")
-    , @NamedQuery(name = "Product.findByPicture", query = "SELECT p FROM Product p WHERE p.picture = :picture")})
+    , @NamedQuery(name = "Product.findByPicture", query = "SELECT p FROM Product p WHERE p.picture = :picture")
+    , @NamedQuery(name = "Product.findByLink", query = "SELECT p FROM Product p WHERE p.link = :link")
+    , @NamedQuery(name = "Product.findByCounter", query = "SELECT p FROM Product p WHERE p.counter = :counter")
+    , @NamedQuery(name = "Product.findMostPopulatProductId", query = "SELECT t.product.id FROM Tracing t ORDER BY t.point ASC")
+    , @NamedQuery(name = "Product.findMostPopularProductByColor",query = "SELECT t.product from Tracing t where t.product.colorId = :colorId and t.product.typeId.upper = :upper order by t.point asc")
+    , @NamedQuery(name = "Product.getNextByCategory", query = "SELECT p FROM Product p WHERE p.typeId = :typeId and p.counter>:counter ORDER BY p.counter ASC")
+    , @NamedQuery(name = "Product.getBackByCategory", query = "SELECT p FROM Product p WHERE p.typeId = :typeId and p.counter>:counter ORDER BY p.counter DESC")
+    , @NamedQuery(name = "Product.getHistoryProducts", query = "SELECT t.product FROM Tracing t where t.tracingPK.userId = :userId order by t.point asc")})
 public class Product implements Serializable {
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
+    private Collection<Tracing> tracingCollection;
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -53,14 +63,15 @@ public class Product implements Serializable {
     @Basic(optional = false)
     @Column(name = "link", nullable = false, length = 1073741823)
     private String link;
+    @Basic(optional = false)
+    @Column(name = "counter", nullable = false)
+    private int counter;
     @JoinColumn(name = "type_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
     private Category typeId;
     @JoinColumn(name = "color_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
     private Color colorId;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
-    private Collection<Tracing> tracingCollection;
 
     public Product() {
     }
@@ -69,12 +80,13 @@ public class Product implements Serializable {
         this.id = id;
     }
 
-    public Product(String id, String name, int price, String picture, String link) {
+    public Product(String id, String name, int price, String picture, String link, int counter) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.picture = picture;
         this.link = link;
+        this.counter = counter;
     }
 
     public String getId() {
@@ -116,7 +128,15 @@ public class Product implements Serializable {
     public void setLink(String link) {
         this.link = link;
     }
-    
+
+    public int getCounter() {
+        return counter;
+    }
+
+    public void setCounter(int counter) {
+        this.counter = counter;
+    }
+
     public Category getTypeId() {
         return typeId;
     }
@@ -131,15 +151,6 @@ public class Product implements Serializable {
 
     public void setColorId(Color colorId) {
         this.colorId = colorId;
-    }
-
-    @XmlTransient
-    public Collection<Tracing> getTracingCollection() {
-        return tracingCollection;
-    }
-
-    public void setTracingCollection(Collection<Tracing> tracingCollection) {
-        this.tracingCollection = tracingCollection;
     }
 
     @Override
@@ -167,5 +178,13 @@ public class Product implements Serializable {
         return "huyvq.registration.Product[ id=" + id + " ]";
     }
 
+    @XmlTransient
+    public Collection<Tracing> getTracingCollection() {
+        return tracingCollection;
+    }
+
+    public void setTracingCollection(Collection<Tracing> tracingCollection) {
+        this.tracingCollection = tracingCollection;
+    }
     
 }

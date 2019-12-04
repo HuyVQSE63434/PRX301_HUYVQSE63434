@@ -4,13 +4,32 @@
         <servlet-name>CrawlController</servlet-name>
         <servlet-class>huyvq.servlet.CrawlController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>FirstController</servlet-name>
+        <servlet-class>huyvq.servlet.FirstController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DetailController</servlet-name>
+        <servlet-class>huyvq.servlet.DetailController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>CrawlController</servlet-name>
         <url-pattern>/CrawlController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FirstController</servlet-name>
+        <url-pattern>/FirstController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DetailController</servlet-name>
+        <url-pattern>/DetailController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
             30
         </session-timeout>
     </session-config>
+    <welcome-file-list>
+        <welcome-file>DetailController</welcome-file>
+    </welcome-file-list>
 </web-app>

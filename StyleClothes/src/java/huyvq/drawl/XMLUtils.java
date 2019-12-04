@@ -56,15 +56,15 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class XMLUtils {
     
-    public static String marshallToString(Product medicines) {
+    public static String marshallToString(Object object) {
         try {
-            JAXBContext jaxbc = JAXBContext.newInstance(Product.class);
+            JAXBContext jaxbc = JAXBContext.newInstance(object.getClass());
             Marshaller ms = jaxbc.createMarshaller();
             ms.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             ms.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             StringWriter sv = new StringWriter();
             
-            ms.marshal(medicines, sv);
+            ms.marshal(object, sv);
             
             return sv.toString();
             

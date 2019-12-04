@@ -33,6 +33,9 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Category.findByUpper", query = "SELECT c FROM Category c WHERE c.upper = :upper")})
 public class Category implements Serializable {
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "typeId")
+    private Collection<Product> productCollection;
+
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -44,8 +47,6 @@ public class Category implements Serializable {
     @Basic(optional = false)
     @Column(name = "upper", nullable = false)
     private boolean upper;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "typeId")
-    private Collection<Product> productCollection;
 
     public Category() {
     }
@@ -84,15 +85,6 @@ public class Category implements Serializable {
         this.upper = upper;
     }
 
-    @XmlTransient
-    public Collection<Product> getProductCollection() {
-        return productCollection;
-    }
-
-    public void setProductCollection(Collection<Product> productCollection) {
-        this.productCollection = productCollection;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
@@ -116,6 +108,15 @@ public class Category implements Serializable {
     @Override
     public String toString() {
         return "huyvq.registration.Category[ id=" + id + " ]";
+    }
+
+    @XmlTransient
+    public Collection<Product> getProductCollection() {
+        return productCollection;
+    }
+
+    public void setProductCollection(Collection<Product> productCollection) {
+        this.productCollection = productCollection;
     }
     
 }
