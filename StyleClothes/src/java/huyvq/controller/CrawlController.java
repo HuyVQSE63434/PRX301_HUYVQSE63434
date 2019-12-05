@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package huyvq.servlet;
+package huyvq.controller;
 
 import huyvq.drawl.Crawler;
 import java.io.IOException;

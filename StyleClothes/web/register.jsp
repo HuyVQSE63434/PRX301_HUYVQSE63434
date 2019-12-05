@@ -1,18 +1,16 @@
 <%-- 
-    Document   : login
-    Created on : Dec 3, 2019, 10:31:13 PM
+    Document   : register
+    Created on : Dec 4, 2019, 10:50:04 PM
     Author     : Dell
 --%>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
-
     <head>
-        <title>Styles Clothes</title>
-        <script src="request.js"></script>
-        <link rel="stylesheet" href="styles.css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Register</title>
         <style>
             form {
                 border: 3px solid #f1f1f1;
@@ -86,30 +84,47 @@
             }
         </style>
     </head>
-    <!--Coded with love by Mutiullah Samim-->
+
     <body>
-        <form action="LoginController" method="post">
+        <form action="RegisterController" method="post">
             <div class="imgcontainer">
                 <img src="men-street-style-outfits.png" class="avatar">
-                <h1>Style clothes</h1>
+                <h1>Style Clothes register</h1>
+                <>
             </div>
 
             <div class="container">
                 <label for="uname"><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" name="uname" required>
-
-                <label for="psw"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="psw" required>
-                <button type="submit">Login</button>
-                <c:set var="error" value="${requestScope.loginerror}" />
-                <c:if test="${not empty error}" >
-                    <h5 style="color:red">${error}</h5>
+                <input type="text" placeholder="Enter Username" name="uname" value="${requestScope.username}" required>
+                <c:set var="nameError" value="${requestScope.nameerror}" />
+                <c:if test="${not empty nameError}" >
+                    <h5 style="color:red">${nameError}</h5>
                 </c:if>
-                </label>
+                <label for="psw"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" name="psw" value="${requestScope.passsword}" required>
+
+                <label for="cpsw"><b>Confirm password</b></label>
+                <input type="password" placeholder="Confirm Password" name="cpsw" required>
+                <c:set var="repasswordError" value="${requestScope.repassworderror}" />
+                <c:if test="${not empty repasswordError}" >
+                    <h5 style="color:red">${repasswordError}</h5>
+                </c:if>
+                <label for="fullname"><b>Full Name</b></label>
+                <input type="text" placeholder="Enter address" name="fullname" value="${requestScope.fullname}" required>
+                <label for="add"><b>Address</b></label>
+                <input type="text" placeholder="Enter address" name="add" value="${requestScope.address}" required>
+                <label for="phonenum"><b>Phone number</b></label>
+                <input type="text" placeholder="Enter address" name="phonenum" value="${requestScope.phonenumber}" required>
+                <c:set var="phoneError" value="${requestScope.phoneerror}" />
+                <c:if test="${not empty phoneError}" >
+                    <h5 style="color:red">${phoneError}</h5>
+                </c:if>
+                <button type="submit">Sign up</button>
+            </div>
+
+            <div class="container" style="background-color:#f1f1f1">
+                <button type="button" class="cancelbtn" onclick="window.location.href = 'login.jsp'">Cancel</button>
             </div>
         </form>
-        <div class="d-flex justify-content-center links">
-            Don't have an account?      <button onclick="window.location.href = 'register.jsp'" style="width: 10%; background: #005cbf">sign up</button>
-        </div>
     </body>
 </html>

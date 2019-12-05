@@ -11,6 +11,8 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -34,7 +36,8 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "UserInformation.findByFullName", query = "SELECT u FROM UserInformation u WHERE u.fullName = :fullName")
     , @NamedQuery(name = "UserInformation.findByAddress", query = "SELECT u FROM UserInformation u WHERE u.address = :address")
     , @NamedQuery(name = "UserInformation.findByEmail", query = "SELECT u FROM UserInformation u WHERE u.email = :email")
-    , @NamedQuery(name = "UserInformation.findByPhoneNumber", query = "SELECT u FROM UserInformation u WHERE u.phoneNumber = :phoneNumber")})
+    , @NamedQuery(name = "UserInformation.findByPhoneNumber", query = "SELECT u FROM UserInformation u WHERE u.phoneNumber = :phoneNumber")
+    , @NamedQuery(name = "UserInformation.checkLogin", query = "SELECT u FROM UserInformation u WHERE u.userName = :username and u.password = :password")})
 public class UserInformation implements Serializable {
 
     @Column(name = "phone_number", length = 50)
@@ -44,6 +47,7 @@ public class UserInformation implements Serializable {
     @Id
     @Basic(optional = false)
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Basic(optional = false)
     @Column(name = "user_name", nullable = false, length = 50)

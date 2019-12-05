@@ -3,25 +3,27 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package huyvq.servlet;
+package huyvq.controller;
 
-import huyvq.drawl.XMLUtils;
-import huyvq.object.Categories;
-import huyvq.object.Products;
-import huyvq.registration.CategoryBLO;
-import huyvq.registration.ProductBLO;
+import com.sun.org.apache.bcel.internal.generic.AALOAD;
+import huyvq.registration.UserBLO;
+import huyvq.registration.UserInformation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author Dell
  */
-public class FirstController extends HttpServlet {
+public class LoginController extends HttpServlet {
+
+    private static final String SUCCESS = "index.jsp";
+    private static final String ERROR = "login.jsp";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,26 +37,26 @@ public class FirstController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        String url = ERROR;
         try {
-            PrintWriter out = response.getWriter();
-            //load category
-            CategoryBLO cateBlo = new CategoryBLO();
-            Categories categories = new Categories();
-            categories.setCategory(cateBlo.getAllCategories());
-            String cateString = XMLUtils.marshallToString(categories);
-            request.setAttribute("category", cateString);
-            
-            //load most see product
-            ProductBLO proBlo = new ProductBLO();
-            Products pros = new Products();
-            pros.setProduct(proBlo.getMostSeeProduct(24));
-            String prosString = XMLUtils.marshallToString(pros);
-            request.setAttribute("mostseeproducts", prosString);
-            
-            //load user histories
-            
-        }catch(Exception e){
-            System.out.println(e.getMessage());
+            String username = request.getParameter("uname");
+            String password = request.getParameter("psw");
+            UserBLO blo = new UserBLO();
+            UserInformation user = blo.checkLogin(username, password);
+            if (user != null) {
+                url = SUCCESS;
+                HttpSession session = request.getSession();
+                session.setAttribute("USERNAME", username);
+                session.setAttribute("FULLNAME", user.getFullName());
+            } else {
+                request.setAttribute("username", username);
+                request.setAttribute("password", password);
+                request.setAttribute("loginerror", "User name or password is incorrect");
+            }
+        } catch (Exception ex) {
+            System.out.println("Error at LoginController : " + ex.getMessage());
+        } finally {
+            request.getRequestDispatcher(url).forward(request, response);
         }
     }
 

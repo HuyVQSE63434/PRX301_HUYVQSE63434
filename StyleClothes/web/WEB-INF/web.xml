@@ -2,15 +2,23 @@
 <web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
     <servlet>
         <servlet-name>CrawlController</servlet-name>
-        <servlet-class>huyvq.servlet.CrawlController</servlet-class>
+        <servlet-class>huyvq.controller.CrawlController</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>FirstController</servlet-name>
-        <servlet-class>huyvq.servlet.FirstController</servlet-class>
+        <servlet-class>huyvq.controller.FirstController</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>DetailController</servlet-name>
-        <servlet-class>huyvq.servlet.DetailController</servlet-class>
+        <servlet-class>huyvq.controller.DetailController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LoginController</servlet-name>
+        <servlet-class>huyvq.controller.LoginController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RegisterController</servlet-name>
+        <servlet-class>huyvq.controller.RegisterController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>CrawlController</servlet-name>
@@ -24,12 +32,20 @@
         <servlet-name>DetailController</servlet-name>
         <url-pattern>/DetailController</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginController</servlet-name>
+        <url-pattern>/LoginController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RegisterController</servlet-name>
+        <url-pattern>/RegisterController</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>DetailController</welcome-file>
+        <welcome-file>login.jsp</welcome-file>
     </welcome-file-list>
 </web-app>
