@@ -1,5 +1,4 @@
 
-
 import huyvq.registration.Product;
 import huyvq.registration.ProductBLO;
 import java.io.StringWriter;
@@ -31,7 +30,13 @@ public class test {
 //        Products pros = new Products();
 //        pros.setProduct(em.createQuery("SELECT b FROM Product b ").getResultList().subList(0, 10));
 //        jaxbObjectToXML(pros);
-        
+        String a = "shorts/pants";
+        if (a.contains("/")) {
+            String[] b = a.split("/");
+            for(String inb : b)
+            System.out.println(inb);
+        }
+        System.out.println(computeMatchingPercent("PANT", "PANTS"));
     }
 
     public static int computeMatchingPercent(String a, String b) {

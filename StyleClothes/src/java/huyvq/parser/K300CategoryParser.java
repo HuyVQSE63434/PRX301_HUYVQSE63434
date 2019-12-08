@@ -22,7 +22,7 @@ public class K300CategoryParser extends DefaultHandler {
 
     private String current;
     private Category dto;
-    private CategoryBLO dao;
+    private CategoryBLO blo;
     private int count;
     public String msg;
 
@@ -42,7 +42,7 @@ public class K300CategoryParser extends DefaultHandler {
     }
 
     public K300CategoryParser() {
-        dao = new CategoryBLO();
+        blo = new CategoryBLO();
         links = new HashMap<>();
         count = 0;
     }
@@ -60,10 +60,16 @@ public class K300CategoryParser extends DefaultHandler {
         String s = new String(ch, start, length);
         switch (current) {
             case "name":
-                s = dao.checkCategoryName(s);
-                dto.setName(s);
-                dto.setId(HashMD5.convertHashToString(s));
-                currentId = dto.getId();
+                Category cate = blo.checkCategoryName(s);
+                if (cate != null) {
+                    dto.setId(cate.getId());
+                    dto.setName(cate.getName());
+                    currentId = cate.getId();
+                } else {
+                    dto.setName(s);
+                    dto.setId(HashMD5.convertHashToString(s));
+                    currentId = dto.getId();
+                }
                 break;
             case "link":
                 links.put(currentId, s);
@@ -76,7 +82,7 @@ public class K300CategoryParser extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("category")) {
             if (dto.getId() != null) {
-                boolean success = dao.getCategories().add(dto);
+                boolean success = blo.getCategories().add(dto);
                 if (success) {
                     count++;
                 }
@@ -87,7 +93,7 @@ public class K300CategoryParser extends DefaultHandler {
 
     @Override
     public void endDocument() throws SAXException {
-        int inserted = dao.insertAllCategory();
+        int inserted = blo.insertAllCategory();
         links.remove("1e8c149916e01aab773adbd438934950");
         this.msg = "\nCào được " + count + " danh mục\n";
 

@@ -25,7 +25,7 @@ public class BadhabitCategoryParser extends DefaultHandler {
 
     private String current;
     private Category dto;
-    private CategoryBLO dao;
+    private CategoryBLO blo;
     private int count;
     public String msg;
 
@@ -45,7 +45,7 @@ public class BadhabitCategoryParser extends DefaultHandler {
     }
 
     public BadhabitCategoryParser() {
-        dao = new CategoryBLO();
+        blo = new CategoryBLO();
         links = new HashMap<>();
         count = 0;
     }
@@ -63,9 +63,16 @@ public class BadhabitCategoryParser extends DefaultHandler {
         String s = new String(ch, start, length);
         switch (current) {
             case "name":
-                dto.setName(s);
-                dto.setId(HashMD5.convertHashToString(s));
-                currentId = dto.getId();
+                Category cate = blo.checkCategoryName(s);
+                if (cate != null) {
+                    dto.setId(cate.getId());
+                    dto.setName(cate.getName());
+                    currentId = cate.getId();
+                } else {
+                    dto.setName(s);
+                    dto.setId(HashMD5.convertHashToString(s));
+                    currentId = dto.getId();
+                }
                 break;
             case "link":
                 links.put(currentId, s);
@@ -77,7 +84,7 @@ public class BadhabitCategoryParser extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("category")) {
-            boolean success = dao.getCategories().add(dto);
+            boolean success = blo.getCategories().add(dto);
             if (success) {
                 count++;
             }
@@ -87,14 +94,14 @@ public class BadhabitCategoryParser extends DefaultHandler {
 
     @Override
     public void endDocument() throws SAXException {
-        int inserted = dao.insertAllCategory();
+        int inserted = blo.insertAllCategory();
         links.remove("5a6bd1d1e708e5fb54993a9b994e4c9d");
         links.remove("ad225b2392b1192d4d6793d147cb174c");
         links.remove("13bbe9a2fbb9e6b6cfa2d10a435c2979");
         this.msg = "\nCào được " + count + " danh mục\n";
 
         this.msg += " Có " + inserted + " danh mục mới\n";
-        
+
         this.msg += "===============================================================================================";
 
         this.msg += "";

@@ -64,22 +64,32 @@ public class CategoryBLO {
         return count;
     }
 
-    public String checkCategoryName(String name) {
+    public Category checkCategoryName(String name) {
         EntityManager em = emf.createEntityManager();
         List<Category> list = em.createQuery("SELECT r FROM Category r").getResultList();
         for (Category category1 : list) {
-            int check = XMLUtils.computeMatchingPercent(category1.getName(), name);
-            if (check > 80) {
-                return category1.getName();
+            if (category1.getName().contains("/")) {
+                String[] sps = category1.getName().split("/");
+                for (String sp : sps) {
+                    int check = XMLUtils.computeMatchingPercent(sp, name);
+                    if (check >= 80) {
+                        return category1;
+                    }
+                }
+            } else {
+                int check = XMLUtils.computeMatchingPercent(category1.getName(), name);
+                if (check > 85) {
+                    return category1;
+                }
             }
         }
-        return name;
+        return null;
     }
-    
-    public List<Category> getAllCategories(){
+
+    public List<Category> getAllCategories() {
         EntityManager em = emf.createEntityManager();
         try {
-            List<Category> cateList = (List<Category>)em.createNamedQuery("Category.findAll").getResultList();
+            List<Category> cateList = (List<Category>) em.createNamedQuery("Category.findAll").getResultList();
             return cateList;
         } catch (Exception e) {
             System.out.println(e.getMessage());

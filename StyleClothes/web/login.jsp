@@ -111,5 +111,8 @@
         <div class="d-flex justify-content-center links">
             Don't have an account?      <button onclick="window.location.href = 'register.jsp'" style="width: 10%; background: #005cbf">sign up</button>
         </div>
+<!--        <form action="CrawlController" method="POST">
+            <input type="submit" value="crawl" />
+        </form>-->
     </body>
 </html>

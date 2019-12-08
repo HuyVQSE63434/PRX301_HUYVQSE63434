@@ -148,6 +148,7 @@ public class CrawlK300 {
 
     private String getDataProduct(String xmlRaw, String cataLink, String key) {
         try {
+            int counter = 0;
             String xsl = getXSLPath("k300products.xsl");
             //transform thành xml
             String xml = Transform.transform(xsl, xmlRaw);
@@ -168,7 +169,14 @@ public class CrawlK300 {
             String nextLink = parser.getNextLink();
             String urlNexkLink = this.prefix + nextLink;
             System.out.println("next page: " +nextLink);
-            return (nextLink != null) ? getProduct(urlNexkLink, key) : "crawl xong link" + cataLink;
+            if(nextLink !=null){
+                if(counter <5){
+                    counter++;
+                    return getProduct(urlNexkLink, key);
+                }
+            }else{
+                return "crawl xong link" + cataLink;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

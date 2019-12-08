@@ -9,9 +9,12 @@ import huyvq.drawl.XMLUtils;
 import huyvq.object.Categories;
 import huyvq.object.Products;
 import huyvq.registration.CategoryBLO;
+import huyvq.registration.Product;
 import huyvq.registration.ProductBLO;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -34,27 +37,44 @@ public class FirstController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
+        response.setContentType("text/xml;charset=UTF-8");
         try {
+            String id = null;
             PrintWriter out = response.getWriter();
-            //load category
-            CategoryBLO cateBlo = new CategoryBLO();
-            Categories categories = new Categories();
-            categories.setCategory(cateBlo.getAllCategories());
-            String cateString = XMLUtils.marshallToString(categories);
-            request.setAttribute("category", cateString);
-            
+            String search = request.getParameter("txtsearch");
+            String action = request.getParameter("action");
+            switch (action) {
+                case "category":
+                    getAllCategory(out);
+                    break;
+                case "accessCategory":
+                    id = request.getParameter("id");
+                    accessCategory(id.trim(), out,search);
+                    break;
+                case "accessNextCategory":
+                    id = request.getParameter("id");
+                    String lastCounter = request.getParameter("lastCounter");
+                    accessNextCategory(id.trim(),lastCounter,out,search);
+                    break;
+                case "accessPreCategory":
+                    id = request.getParameter("id");
+                    String firstCounter = request.getParameter("firstCounter");
+                    accessPreCategory(id.trim(),firstCounter,out,search);
+                    break;
+            }
             //load most see product
-            ProductBLO proBlo = new ProductBLO();
-            Products pros = new Products();
-            pros.setProduct(proBlo.getMostSeeProduct(24));
-            String prosString = XMLUtils.marshallToString(pros);
-            request.setAttribute("mostseeproducts", prosString);
-            
-            //load user histories
-            
-        }catch(Exception e){
+//            ProductBLO proBlo = new ProductBLO();
+//            Products pros = new Products();
+//            pros.setProduct(proBlo.getMostSeeProduct(24));
+//            String prosString = XMLUtils.marshallToString(pros);
+//            request.setAttribute("mostseeproducts", prosString);
+//            
+//            //load user histories
+//            
+        } catch (Exception e) {
             System.out.println(e.getMessage());
+        } finally {
+            response.getWriter().close();
         }
     }
 
@@ -97,4 +117,42 @@ public class FirstController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+    private void getAllCategory(PrintWriter out) {
+        //load category
+        CategoryBLO cateBlo = new CategoryBLO();
+        Categories categories = new Categories();
+        categories.setCategory(cateBlo.getAllCategories());
+        String cateString = XMLUtils.marshallToString(categories);
+        //request.setAttribute("category", cateString);
+        out.print(cateString);
+    }
+
+    private void accessCategory(String id, PrintWriter out,String search) {
+        ProductBLO blo = new ProductBLO();
+        Products products = new Products();
+        if(search.equals("null")) search = "";
+        products.setProduct(blo.getProductByCategory(24, id,search));
+        String productsString = XMLUtils.marshallToString(products);
+        out.print(productsString);
+    }
+
+    private void accessNextCategory(String id, String lastCounter, PrintWriter out,String search) {
+        ProductBLO blo = new ProductBLO();
+        Products products = new Products();
+        int count = Integer.parseInt(lastCounter);
+        if(search.equals("null")) search = "";
+        products.setProduct(blo.getNextProductByCategory(count,24, id,search));
+        String productsString = XMLUtils.marshallToString(products);
+        out.print(productsString);
+    }
+
+    private void accessPreCategory(String id, String firstCounter, PrintWriter out,String search) {
+        ProductBLO blo = new ProductBLO();
+        Products products = new Products();
+        int count = Integer.parseInt(firstCounter);
+        if(search.equals("null")) search = "";
+        products.setProduct(blo.getPreProductByCategory(count,24, id,search));
+        String productsString = XMLUtils.marshallToString(products);
+        out.print(productsString);
+    }
 }

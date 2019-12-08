@@ -11,6 +11,8 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -38,8 +40,9 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Product.findByCounter", query = "SELECT p FROM Product p WHERE p.counter = :counter")
     , @NamedQuery(name = "Product.findMostPopulatProductId", query = "SELECT t.product.id FROM Tracing t ORDER BY t.point ASC")
     , @NamedQuery(name = "Product.findMostPopularProductByColor",query = "SELECT t.product from Tracing t where t.product.colorId = :colorId and t.product.typeId.upper = :upper order by t.point asc")
-    , @NamedQuery(name = "Product.getNextByCategory", query = "SELECT p FROM Product p WHERE p.typeId = :typeId and p.counter>:counter ORDER BY p.counter ASC")
-    , @NamedQuery(name = "Product.getBackByCategory", query = "SELECT p FROM Product p WHERE p.typeId = :typeId and p.counter>:counter ORDER BY p.counter DESC")
+    , @NamedQuery(name = "Product.getByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.name like :search ORDER BY p.counter ASC")
+    , @NamedQuery(name = "Product.getNextByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.counter>:counter and p.name like :search ORDER BY p.counter ASC")
+    , @NamedQuery(name = "Product.getBackByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.counter<:counter and p.counter >:counter2 and p.name like :search ORDER BY p.counter ASC")
     , @NamedQuery(name = "Product.getHistoryProducts", query = "SELECT t.product FROM Tracing t where t.tracingPK.userId = :userId order by t.point asc")})
 public class Product implements Serializable {
 
@@ -65,6 +68,7 @@ public class Product implements Serializable {
     private String link;
     @Basic(optional = false)
     @Column(name = "counter", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int counter;
     @JoinColumn(name = "type_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)

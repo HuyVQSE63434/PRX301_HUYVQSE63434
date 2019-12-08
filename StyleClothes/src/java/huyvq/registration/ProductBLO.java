@@ -77,7 +77,7 @@ public class ProductBLO {
                 c.setPrice(product.getPrice());
                 em.getTransaction().begin();
                 em.merge(c);
-                em.getTransaction().commit();  
+                em.getTransaction().commit();
                 update++;
             } catch (Exception e) {
                 Category cate = em.find(Category.class, typeId);
@@ -111,30 +111,36 @@ public class ProductBLO {
         }
         return result;
     }
-    
-    public List<Product> getHistoryProducts(String userId){
+
+    public List<Product> getHistoryProducts(String userId) {
         EntityManager em = emf.createEntityManager();
         List<Product> pros = em.createNamedQuery("Product.getHistoryProducts").setParameter("userId", userId).getResultList();
         return pros;
     }
-    
-    public List<Product> getNextProduct(int counterStart, int limit, String typeId){
+
+    public List<Product> getProductByCategory(int limit, String typeId,String search) {
         EntityManager em = emf.createEntityManager();
-        List<Product> pros = em.createNamedQuery("Product.getNextByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setMaxResults(limit).getResultList();
+        List<Product> pros = em.createNamedQuery("Product.getByCategory").setParameter("typeId", typeId).setParameter("search", "%"+search+"%").setMaxResults(limit).getResultList();
         return pros;
     }
-    
-    public List<Product> getPreProduct(int counterStart, int limit, String typeId){
+
+    public List<Product> getNextProductByCategory(int counterStart, int limit, String typeId,String search) {
         EntityManager em = emf.createEntityManager();
-        List<Product> pros = em.createNamedQuery("Product.getBackByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setMaxResults(limit).getResultList();
+        List<Product> pros = em.createNamedQuery("Product.getNextByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setParameter("search", "%"+search+"%").setMaxResults(limit).getResultList();
         return pros;
     }
-    
-    public Product getProduct(String id){
+
+    public List<Product> getPreProductByCategory(int counterStart, int limit, String typeId,String search) {
+        EntityManager em = emf.createEntityManager();
+        List<Product> pros = em.createNamedQuery("Product.getBackByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setParameter("counter2", counterStart-25).setParameter("search", "%"+search+"%").setMaxResults(limit).getResultList();
+        return pros;
+    }
+
+    public Product getProduct(String id) {
         try {
             EntityManager em = emf.createEntityManager();
-        Product pro = (Product) em.createNamedQuery("Product.findById").setParameter("id", id).getSingleResult();
-        return pro;
+            Product pro = (Product) em.createNamedQuery("Product.findById").setParameter("id", id).getSingleResult();
+            return pro;
         } catch (Exception e) {
             return null;
         }
@@ -150,8 +156,8 @@ public class ProductBLO {
             return null;
         }
     }
-    
-    public List<Product> findSuggestProduct(String productId){
+
+    public List<Product> findSuggestProduct(String productId) {
         try {
             List<Product> result = new ArrayList<>();
             EntityManager em = emf.createEntityManager();
