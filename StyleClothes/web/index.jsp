@@ -4,6 +4,7 @@
     Author     : Dell
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -16,10 +17,11 @@
     <body>
 
 
+        <c:set var="fullname" value="${sessionScope.FULLNAME}" />
+        
+        <h2>Hello <span class="badge badge-secondary"><c:out value="${fullname}"/><br/></span></h2>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            
             <a class="navbar-brand" href="#">STYLE CLOTHES</a>
 
             <div class="collapse navbar-collapse" id="navbarTogglerDemo03">

@@ -16,7 +16,6 @@ function request(method, controller, params, callback) {
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     if (params !== null) {
         xhttp.send(querialize(params));
-
     } else {
         xhttp.send("abc");
     }
@@ -31,14 +30,12 @@ function querialize(params) {
 
 console.log("start");
 loadCategories();
-
 var lastCounter = 0;
 var firstCounter = 0;
 var currentCategory = null;
 var isLastPage = false;
 var isFirstPage = false;
 var searchValue = null;
-
 function loadCategories() {
     request('POST', 'FirstController', {
         action: 'category'
@@ -75,7 +72,6 @@ function accessCategory(id) {
         id: id,
         txtsearch: searchValue
     }, function (res) {
-        console.log(res);
         var container = document.getElementById('productContainer');
         var domparser = new DOMParser();
         var doc = domparser.parseFromString(res.responseText, "text/xml");
@@ -86,7 +82,7 @@ function accessCategory(id) {
             isLastPage = true;
         for (var i = 0; i < products.length; i++) {
             var product = products[i];
-            var id = product.querySelector('id').textContent;
+            var id = product.childNodes[5].firstChild.nodeValue;
             var name = product.querySelector('name').textContent;
             var price = product.querySelector('price').textContent;
             var picture = product.querySelector('picture').textContent;
@@ -100,8 +96,9 @@ function accessCategory(id) {
                 lastCounter = counter;
                 console.log(lastCounter);
             }
+            var idstr = "'" + id + "'";
             output += '<div class="col mb-4">'
-                    + '<div class="card" onclick="accessProduct("' + id + '")">'
+                    + '<div class="card"  onclick="accessProduct(' + idstr + ')">'
                     + '<img src="' + picture + '" class="card-img-top" alt="...">'
                     + '<div class="card-body">'
                     + '<h5 class="card-title">' + name + '</h5>'
@@ -129,17 +126,15 @@ function accessNextCategory() {
             lastCounter: lastCounter,
             txtsearch: searchValue
         }, function (res) {
-            console.log(res);
             var container = document.getElementById('productContainer');
             var domparser = new DOMParser();
             var doc = domparser.parseFromString(res.responseText, "text/xml");
             var products = doc.getElementsByTagName('product');
-            console.log(res.responseText);
             var output = "";
             if (products.length > 0) {
                 for (var i = 0; i < products.length; i++) {
                     var product = products[i];
-                    var id = product.querySelector('id').textContent;
+                    var id = product.childNodes[5].firstChild.nodeValue;
                     var name = product.querySelector('name').textContent;
                     var price = product.querySelector('price').textContent;
                     var picture = product.querySelector('picture').textContent;
@@ -153,8 +148,9 @@ function accessNextCategory() {
                         lastCounter = counter;
                         console.log(lastCounter);
                     }
+                    var idstr = "'" + id + "'";
                     output += '<div class="col mb-4">'
-                            + '<div class="card" onclick="accessProduct("' + id + '")">'
+                            + '<div class="card" onclick="accessProduct(' + idstr + ')">'
                             + '<img src="' + picture + '" class="card-img-top" alt="...">'
                             + '<div class="card-body">'
                             + '<h5 class="card-title">' + name + '</h5>'
@@ -190,17 +186,15 @@ function accessPreCategory() {
             firstCounter: firstCounter,
             txtsearch: searchValue
         }, function (res) {
-            console.log(res);
             var container = document.getElementById('productContainer');
             var domparser = new DOMParser();
             var doc = domparser.parseFromString(res.responseText, "text/xml");
             var products = doc.getElementsByTagName('product');
-            console.log(res.responseText);
             var output = "";
             if (products.length > 0) {
                 for (var i = 0; i < products.length; i++) {
                     var product = products[i];
-                    var id = product.querySelector('id').textContent;
+                    var id = product.childNodes[5].firstChild.nodeValue;
                     var name = product.querySelector('name').textContent;
                     var price = product.querySelector('price').textContent;
                     var picture = product.querySelector('picture').textContent;
@@ -214,9 +208,10 @@ function accessPreCategory() {
                         lastCounter = counter;
                         console.log(lastCounter);
                     }
+                    var idstr = "'" + id + "'";
                     output += '<div class="col mb-4">'
-                            + '<div class="card" onclick="accessProduct("' + id + '")">'
-                            + '<img src="' + picture + '" class="card-img-top" alt="...">'
+                            + '<div class="card" onclick="accessProduct(' + idstr + ')">'
+                            + '<img src="' + picture + '" class="card-img-top" alt="..." >'
                             + '<div class="card-body">'
                             + '<h5 class="card-title">' + name + '</h5>'
                             + '<p class="card-text">' + price + 'vnđ</p>'
@@ -242,3 +237,23 @@ function search() {
     console.log('search value: ' + searchValue);
     accessCategory(currentCategory);
 }
+
+function accessProduct(id) {
+     window.location.href = "/StyleClothes/FirstController?action=accessProduct&id="+id;
+//    request('POST', 'FirstController', {
+//        action: 'accessProduct',
+//        id: id
+//    }, function (res) {
+//        console.log("access product");
+//        var domparser = new DOMParser();
+//        var doc = domparser.parseFromString(res.responseText, "text/xml");
+//        console.log(doc);
+//        var products = doc.getElementsByTagName('product');
+//        console.log(res.responseText);
+//        window.location.href = "detail.jsp";
+//    });
+}
+
+
+
+//========================================================================================

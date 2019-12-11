@@ -11,6 +11,7 @@ import huyvq.registration.MixColor;
 import huyvq.registration.MixColorBLO;
 import huyvq.registration.Product;
 import huyvq.registration.ProductBLO;
+import huyvq.registration.TracingBLO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -40,32 +42,31 @@ public class DetailController extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try {
             PrintWriter out = response.getWriter();
-            String productId = request.getParameter("productid");
+            String productId = request.getParameter("id");
+            String action = request.getParameter("action");
             ProductBLO problo = new ProductBLO();
             Product pro = problo.getProduct(productId);
 
-            //find mix clothes
-            MixColorBLO mixBlo = new MixColorBLO();
-            List<MixColor> suitColors = mixBlo.findMixColor(pro.getColorId().getId());
-            boolean upper = pro.getTypeId().getUpper();
-            List<Product> mixProducts = new ArrayList<>();
-            for (MixColor m : suitColors) {
-                List<Product> p = problo.findMostPopularProductByColor(m.getColor1().getId(), !upper);
-                mixProducts.addAll(p);
+            switch (action) {
+                case "firstAccess":
+                    System.out.println("begin access mix clothes");
+                    findMixClothes(problo, pro, out);
+                    break;
+                case "secondAccess":
+                    findSuggestClothes(problo, productId, out);
+                    break;
+                case "accessLink":
+                    HttpSession session = request.getSession();
+                    countingLinkTime(productId,session.getAttribute("USERID"));
+                    break;
+                default:
+                    break;
             }
-            String xmlString = XMLUtils.marshallToString(new Products(mixProducts));
-            request.setAttribute("mixclothes", xmlString);
 
-            //find suggest clothes
-            List<Product> suggestProducts = problo.findSuggestProduct(productId);
-            xmlString = XMLUtils.marshallToString(new Products(suggestProducts));
-            request.setAttribute("suggestclothes", xmlString);
-            
-            System.out.println("done load mix and suggest product:\n");
-            System.out.println("Suggest product:"+ suggestProducts.size() + "product\n");
-            System.out.println("mix product:" + mixProducts.size() +"product\n");
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+        } finally {
+            response.getWriter().close();
         }
     }
 
@@ -107,5 +108,35 @@ public class DetailController extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+    private void findMixClothes(ProductBLO problo, Product pro, PrintWriter out) {
+        //find mix clothes
+        MixColorBLO mixBlo = new MixColorBLO();
+        List<MixColor> suitColors = mixBlo.findMixColor(pro.getColorId().getId());
+        boolean upper = pro.getTypeId().getUpper();
+        List<Product> mixProducts = new ArrayList<>();
+        for (MixColor m : suitColors) {
+            List<Product> p = problo.findMostPopularProductByColor(m.getColor1().getId(), !upper);
+            mixProducts.addAll(p);
+        }
+        String xmlString = XMLUtils.marshallToString(new Products(mixProducts));
+        out.print(xmlString);
+    }
+
+    private void findSuggestClothes(ProductBLO problo, String productId, PrintWriter out) {
+        //find suggest clothes
+        List<Product> suggestProducts = problo.findSuggestProduct(productId);
+        String xmlString = XMLUtils.marshallToString(new Products(suggestProducts));
+        out.print(xmlString);
+    }
+
+    private void countingLinkTime(String productId, Object userid) {
+        TracingBLO blo = new TracingBLO();
+        try {
+            blo.countingLinkTime(productId,(int) userid);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

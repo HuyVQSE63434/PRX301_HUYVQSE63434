@@ -6,6 +6,7 @@
 package huyvq.registration;
 
 import huyvq.drawl.XMLUtils;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,7 +19,7 @@ import javax.persistence.Persistence;
  *
  * @author Dell
  */
-public class CategoryBLO {
+public class CategoryBLO implements Serializable{
 
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("StyleClothesPU");
     private List<Category> categories;

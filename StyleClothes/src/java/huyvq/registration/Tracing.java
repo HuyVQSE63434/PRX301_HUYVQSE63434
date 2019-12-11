@@ -32,7 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Tracing.findByLinkTime", query = "SELECT t FROM Tracing t WHERE t.linkTime = :linkTime")
     , @NamedQuery(name = "Tracing.findByPoint", query = "SELECT t FROM Tracing t WHERE t.point = :point")
     , @NamedQuery(name = "Tracing.finMaxPointUser", query = "SELECT t.userInformation.id FROM Tracing t where t.tracingPK.productId = :productId order by t.point asc")
-    , @NamedQuery(name = "Tracing.findProductByUser", query = "SELECT t.product from Tracing t where t.tracingPK.userId = :userId order by t.point asc")})
+    , @NamedQuery(name = "Tracing.findProductByUser", query = "SELECT t.product from Tracing t where t.tracingPK.userId = :userId order by t.point asc")
+    , @NamedQuery(name = "Tracing.findByProductIdAndUserId", query = "SELECT t FROM Tracing t WHERE t.tracingPK.userId = :userId AND t.tracingPK.productId = :productId")})
 public class Tracing implements Serializable {
 
     private static final long serialVersionUID = 1L;

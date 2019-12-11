@@ -34,6 +34,7 @@ public class CrawlK300 {
     private String prefix;
     private String domain;
     private ServletContext context; 
+    int counter = 0;
     
     CrawlK300(String url, String prefix, String domain, ServletContext context) {
         this.url = url;
@@ -88,6 +89,7 @@ public class CrawlK300 {
                 String cataLink = prefix + value;
                 System.out.println("catagory link: " + cataLink);
                 System.out.println("key-value:" + key + " " + value);
+                count = 0;
                 message = getProduct(cataLink, key);
             }
             return message;
@@ -148,7 +150,7 @@ public class CrawlK300 {
 
     private String getDataProduct(String xmlRaw, String cataLink, String key) {
         try {
-            int counter = 0;
+            
             String xsl = getXSLPath("k300products.xsl");
             //transform thành xml
             String xml = Transform.transform(xsl, xmlRaw);
@@ -170,8 +172,8 @@ public class CrawlK300 {
             String urlNexkLink = this.prefix + nextLink;
             System.out.println("next page: " +nextLink);
             if(nextLink !=null){
-                if(counter <5){
-                    counter++;
+                if(counter <6){
+                    counter= counter+1;
                     return getProduct(urlNexkLink, key);
                 }
             }else{

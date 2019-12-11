@@ -46,7 +46,7 @@ public class LoginController extends HttpServlet {
             if (user != null) {
                 url = SUCCESS;
                 HttpSession session = request.getSession();
-                session.setAttribute("USERNAME", username);
+                session.setAttribute("USERID", user.getId());              
                 session.setAttribute("FULLNAME", user.getFullName());
             } else {
                 request.setAttribute("username", username);
