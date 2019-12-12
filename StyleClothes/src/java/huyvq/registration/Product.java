@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Product.findMostPopularProductByColor",query = "SELECT t.product from Tracing t where t.product.colorId.id = :colorId and t.product.typeId.upper = :upper order by t.point asc")
     , @NamedQuery(name = "Product.getByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.name like :search ORDER BY p.counter ASC")
     , @NamedQuery(name = "Product.getNextByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.counter>:counter and p.name like :search ORDER BY p.counter ASC")
-    , @NamedQuery(name = "Product.getBackByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.counter<:counter and p.counter >:counter2 and p.name like :search ORDER BY p.counter ASC")
+    , @NamedQuery(name = "Product.getBackByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.counter<:counter and p.name like :search ORDER BY p.counter ASC")
     , @NamedQuery(name = "Product.getHistoryProducts", query = "SELECT t.product FROM Tracing t where t.tracingPK.userId = :userId order by t.point asc")})
 public class Product implements Serializable {
 

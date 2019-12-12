@@ -29,13 +29,29 @@ function querialize(params) {
 }
 
 console.log("start");
-loadCategories();
 var lastCounter = 0;
 var firstCounter = 0;
 var currentCategory = null;
 var isLastPage = false;
 var isFirstPage = false;
 var searchValue = null;
+function firstLoading() {
+    loadCategories();
+    currentCategory = sessionStorage.getItem("currentCategory");
+    lastCounter = sessionStorage.getItem("counter");
+    isFirstPage = sessionStorage.getItem("isFirstPage");
+    searchValue = sessionStorage.getItem("searchValue");
+    if (currentCategory !== null) {
+        if (isFirstPage) {
+            accessCategory(currentCategory);
+        } else {
+            accessNextCategory();
+            var currentNum = document.getElementById('currentNumber');
+            currentNum.innerHTML = sessionStorage.getItem("num");
+        }
+    }
+}
+
 function loadCategories() {
     request('POST', 'FirstController', {
         action: 'category'
@@ -45,10 +61,8 @@ function loadCategories() {
         var domparser = new DOMParser();
         var doc = domparser.parseFromString(res.responseText, "text/xml");
         var categories = doc.getElementsByTagName('category');
-        console.log(res.responseText);
         var output = "";
         for (var i = 0; i < categories.length; i++) {
-            console.log(123);
             var category = categories[i];
             var id = category.querySelector('id').textContent;
             id = "'" + id + "'";
@@ -62,8 +76,10 @@ function loadCategories() {
 
 function accessCategory(id) {
     currentCategory = id;
+    sessionStorage.setItem("currentCategory", currentCategory);
     isLastPage = false;
     isFirstPage = false;
+    sessionStorage.setItem("isFirstPage", isFirstPage);
     var currentNum = document.getElementById('currentNumber');
     currentNum.innerHTML = 1;
     console.log("start access category");
@@ -76,7 +92,6 @@ function accessCategory(id) {
         var domparser = new DOMParser();
         var doc = domparser.parseFromString(res.responseText, "text/xml");
         var products = doc.getElementsByTagName('product');
-        console.log(res.responseText);
         var output = "";
         if (products.length < 24)
             isLastPage = true;
@@ -90,6 +105,7 @@ function accessCategory(id) {
             var counter = product.querySelector('counter').textContent;
             if (i === 0) {
                 firstCounter = counter;
+                sessionStorage.setItem("counter", firstCounter - 1);
                 console.log(firstCounter);
             }
             if (i === (products.length - 1)) {
@@ -109,12 +125,14 @@ function accessCategory(id) {
         }
         container.innerHTML = output;
         isFirstPage = true;
+        sessionStorage.setItem("isFirstPage", isFirstPage);
     });
 }
 
 function accessNextCategory() {
     console.log("start access next category");
     isFirstPage = false;
+    sessionStorage.setItem("isFirstPage", isFirstPage);
     console.log(isLastPage);
     if (!isLastPage) {
         console.log("is not last page");
@@ -142,6 +160,7 @@ function accessNextCategory() {
                     var counter = product.querySelector('counter').textContent;
                     if (i === 0) {
                         firstCounter = counter;
+                        sessionStorage.setItem("counter", firstCounter - 1);
                         console.log(firstCounter);
                     }
                     if (i === (products.length - 1)) {
@@ -162,7 +181,9 @@ function accessNextCategory() {
                 container.innerHTML = output;
                 num = num + 1;
                 currentNum.innerHTML = num;
+                sessionStorage.setItem("num", num);
                 isLastPage = false;
+                console.log("load next success");
             } else {
                 isLastPage = true;
                 var nextbutton = document.getElementById("nextButton");
@@ -173,9 +194,9 @@ function accessNextCategory() {
 }
 
 function accessPreCategory() {
-    console.log("start access pre category");
+    console.log("start access pre category: "+currentCategory);
     isLastPage = false;
-    console.log(isFirstPage);
+    console.log("is first page = "+isFirstPage);
     if (!isFirstPage) {
         console.log("is not first page");
         var currentNum = document.getElementById('currentNumber');
@@ -202,6 +223,7 @@ function accessPreCategory() {
                     var counter = product.querySelector('counter').textContent;
                     if (i === 0) {
                         firstCounter = counter;
+                        sessionStorage.setItem("counter", firstCounter - 1);
                         console.log(firstCounter);
                     }
                     if (i === (products.length - 1)) {
@@ -222,9 +244,13 @@ function accessPreCategory() {
                 container.innerHTML = output;
                 num = num - 1;
                 currentNum.innerHTML = num;
+                sessionStorage.setItem("num", num);
                 isFirstPage = false;
+                sessionStorage.setItem("isFirstPage", isFirstPage);
+                console.log("load pre success");
             } else {
                 isFirstPage = true;
+                sessionStorage.setItem("isFirstPage", isFirstPage);
             }
         });
     }
@@ -234,12 +260,15 @@ function accessPreCategory() {
 function search() {
     console.log("search started");
     searchValue = document.getElementById('txtsearch').value;
+    sessionStorage.setItem("searchValue", searchValue);
     console.log('search value: ' + searchValue);
     accessCategory(currentCategory);
 }
 
 function accessProduct(id) {
-     window.location.href = "/StyleClothes/FirstController?action=accessProduct&id="+id;
+    window.location.href = "/StyleClothes/FirstController?"
+            + "action=accessProduct"
+            + "&id=" + id;
 //    request('POST', 'FirstController', {
 //        action: 'accessProduct',
 //        id: id

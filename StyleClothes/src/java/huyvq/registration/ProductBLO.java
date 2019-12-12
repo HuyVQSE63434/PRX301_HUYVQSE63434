@@ -133,7 +133,7 @@ public class ProductBLO implements Serializable{
 
     public List<Product> getPreProductByCategory(int counterStart, int limit, String typeId,String search) {
         EntityManager em = emf.createEntityManager();
-        List<Product> pros = em.createNamedQuery("Product.getBackByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setParameter("counter2", counterStart-25).setParameter("search", "%"+search+"%").setMaxResults(limit).getResultList();
+        List<Product> pros = em.createNamedQuery("Product.getBackByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setParameter("search", "%"+search+"%").setMaxResults(limit).getResultList();
         return pros;
     }
 
@@ -162,8 +162,8 @@ public class ProductBLO implements Serializable{
         try {
             List<Product> result = new ArrayList<>();
             EntityManager em = emf.createEntityManager();
-            List<String> userIds = em.createNamedQuery("Tracing.finMaxPointUser").setParameter("productId", productId).getResultList();
-            for (String userId : userIds) {
+            List<Integer> userIds = em.createNamedQuery("Tracing.finMaxPointUser").setParameter("productId", productId).getResultList();
+            for (int userId : userIds) {
                 List<Product> pros = em.createNamedQuery("Tracing.findProductByUser").setParameter("userId", userId).setMaxResults(2).getResultList();
                 result.addAll(pros);
             }

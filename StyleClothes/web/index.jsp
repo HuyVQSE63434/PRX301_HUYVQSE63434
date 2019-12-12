@@ -88,4 +88,7 @@
             </ul>
         </nav>
     </body>
+    <script>
+        firstLoading();
+    </script>
 </html>
