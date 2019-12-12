@@ -31,23 +31,43 @@ function querialize(params) {
 console.log("start");
 var lastCounter = 0;
 var firstCounter = 0;
-var currentCategory = null;
+var currentCategory = "main";
 var isLastPage = false;
 var isFirstPage = false;
 var searchValue = null;
+var num = 0;
 function firstLoading() {
     loadCategories();
-    currentCategory = sessionStorage.getItem("currentCategory");
-    lastCounter = sessionStorage.getItem("counter");
-    isFirstPage = sessionStorage.getItem("isFirstPage");
-    searchValue = sessionStorage.getItem("searchValue");
-    if (currentCategory !== null) {
-        if (isFirstPage) {
-            accessCategory(currentCategory);
-        } else {
-            accessNextCategory();
-            var currentNum = document.getElementById('currentNumber');
-            currentNum.innerHTML = sessionStorage.getItem("num");
+    if (currentCategory === "main") {
+        accessCategory(currentCategory);
+        var paging = document.getElementById('paging');
+        paging.setAttribute("style", "display: none");
+        var h3 = document.getElementById('mostseeh3');
+        h3.setAttribute("style", "display: block");
+    } else {
+        currentCategory = sessionStorage.getItem("currentCategory");
+        console.log("current category: " + currentCategory);
+        lastCounter = sessionStorage.getItem("counter");
+        console.log("last counter: " + lastCounter);
+        isFirstPage = sessionStorage.getItem("isFirstPage");
+        console.log("is first page: " + isFirstPage);
+        searchValue = sessionStorage.getItem("searchValue");
+        console.log("search value: " + searchValue);
+        num = sessionStorage.getItem("num");
+        console.log("num: " + num);
+        if (currentCategory != null) {
+            if (isFirstPage == 'true') {
+                console.log("access category hihi");
+                accessCategory(currentCategory);
+            } else {
+                console.log("access next category hihi");
+                accessNextCategory();
+                var currentNum = document.getElementById('currentNumber');
+                currentNum.innerHTML = num;
+                var preli = document.getElementById('preLi');
+                preli.setAttribute("class", "page-item");
+                console.log("done access next category hihi");
+            }
         }
     }
 }
@@ -75,6 +95,19 @@ function loadCategories() {
 }
 
 function accessCategory(id) {
+    if (id !== "main") {
+
+        var paging = document.getElementById('paging');
+        paging.setAttribute("style", "display: block");
+        var h3 = document.getElementById('mostseeh3');
+        h3.setAttribute("style", "display: none");
+    } else {
+
+        var paging = document.getElementById('paging');
+        paging.setAttribute("style", "display: none");
+        var h3 = document.getElementById('mostseeh3');
+        h3.setAttribute("style", "display: block");
+    }
     currentCategory = id;
     sessionStorage.setItem("currentCategory", currentCategory);
     isLastPage = false;
@@ -82,6 +115,7 @@ function accessCategory(id) {
     sessionStorage.setItem("isFirstPage", isFirstPage);
     var currentNum = document.getElementById('currentNumber');
     currentNum.innerHTML = 1;
+    sessionStorage.setItem("num", 1);
     console.log("start access category");
     request('POST', 'FirstController', {
         action: 'accessCategory',
@@ -126,6 +160,34 @@ function accessCategory(id) {
         container.innerHTML = output;
         isFirstPage = true;
         sessionStorage.setItem("isFirstPage", isFirstPage);
+
+        var preli = document.getElementById('preLi');
+        preli.setAttribute("class", "page-item disabled");
+
+
+        request('POST', 'FirstController', {
+            action: 'accessNextCategory',
+            id: currentCategory,
+            lastCounter: lastCounter,
+            txtsearch: searchValue
+        }, function (res) {
+            var domparser = new DOMParser();
+            var doc = domparser.parseFromString(res.responseText, "text/xml");
+            var products = doc.getElementsByTagName('product');
+            console.log(products.length + " " + lastCounter);
+            if (products.length <= 0) {
+                isLastPage = true;
+                var nextLi = document.getElementById('nextLi');
+                nextLi.setAttribute("class", "page-item disabled");
+            } else {
+                isLastPage = false;
+                var nextLi = document.getElementById('nextLi');
+                nextLi.setAttribute("class", "page-item");
+            }
+        });
+
+
+
     });
 }
 
@@ -133,11 +195,16 @@ function accessNextCategory() {
     console.log("start access next category");
     isFirstPage = false;
     sessionStorage.setItem("isFirstPage", isFirstPage);
+    console.log("is first page: " + isFirstPage);
     console.log(isLastPage);
+
+    var preli = document.getElementById('preLi');
+    preli.setAttribute("class", "page-item");
+
     if (!isLastPage) {
         console.log("is not last page");
         var currentNum = document.getElementById('currentNumber');
-        var num = parseInt(currentNum.innerHTML, 10);
+        num = parseInt(currentNum.innerHTML, 10);
         request('POST', 'FirstController', {
             action: 'accessNextCategory',
             id: currentCategory,
@@ -184,19 +251,45 @@ function accessNextCategory() {
                 sessionStorage.setItem("num", num);
                 isLastPage = false;
                 console.log("load next success");
+
+
+                request('POST', 'FirstController', {
+                    action: 'accessNextCategory',
+                    id: currentCategory,
+                    lastCounter: lastCounter,
+                    txtsearch: searchValue
+                }, function (res) {
+                    var domparser = new DOMParser();
+                    var doc = domparser.parseFromString(res.responseText, "text/xml");
+                    var products = doc.getElementsByTagName('product');
+                    console.log(products.length + " " + lastCounter);
+                    if (products.length <= 0) {
+                        isLastPage = true;
+                        var nextLi = document.getElementById('nextLi');
+                        nextLi.setAttribute("class", "page-item disabled");
+                    } else {
+                        isLastPage = false;
+                        var nextLi = document.getElementById('nextLi');
+                        nextLi.setAttribute("class", "page-item");
+                    }
+                });
+
+
             } else {
                 isLastPage = true;
-                var nextbutton = document.getElementById("nextButton");
-                nextbutton.setAttribute("aria-disabled", "true");
+                var nextli = document.getElementById('nextLi');
+                nextli.setAttribute("class", "page-item disabled");
             }
         });
     }
 }
 
 function accessPreCategory() {
-    console.log("start access pre category: "+currentCategory);
+    console.log("start access pre category: " + currentCategory);
     isLastPage = false;
-    console.log("is first page = "+isFirstPage);
+    console.log("is first page = " + isFirstPage);
+    var nextli = document.getElementById('nextLi');
+    nextli.setAttribute("class", "page-item");
     if (!isFirstPage) {
         console.log("is not first page");
         var currentNum = document.getElementById('currentNumber');
@@ -248,9 +341,39 @@ function accessPreCategory() {
                 isFirstPage = false;
                 sessionStorage.setItem("isFirstPage", isFirstPage);
                 console.log("load pre success");
+
+
+                request('POST', 'FirstController', {
+                    action: 'accessPreCategory',
+                    id: currentCategory,
+                    firstCounter: firstCounter,
+                    txtsearch: searchValue
+                }, function (res) {
+                    var domparser = new DOMParser();
+                    var doc = domparser.parseFromString(res.responseText, "text/xml");
+                    var products = doc.getElementsByTagName('product');
+                    if (products.length <= 0) {
+                        isFirstPage = true;
+                        sessionStorage.setItem("isFirstPage", isFirstPage);
+
+                        var preli = document.getElementById('preLi');
+                        preli.setAttribute("class", "page-item disabled");
+                    } else {
+                        isFirstPage = false;
+                        sessionStorage.setItem("isFirstPage", isFirstPage);
+
+                        var preli = document.getElementById('preLi');
+                        preli.setAttribute("class", "page-item");
+                    }
+                });
+
+
             } else {
                 isFirstPage = true;
                 sessionStorage.setItem("isFirstPage", isFirstPage);
+
+                var preli = document.getElementById('preLi');
+                preli.setAttribute("class", "page-item disabled");
             }
         });
     }
