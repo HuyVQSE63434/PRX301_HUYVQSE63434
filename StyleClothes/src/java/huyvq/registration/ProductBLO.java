@@ -20,7 +20,7 @@ import javax.persistence.Persistence;
  *
  * @author Dell
  */
-public class ProductBLO implements Serializable{
+public class ProductBLO implements Serializable {
 
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("StyleClothesPU");
     private List<Product> products;
@@ -103,13 +103,9 @@ public class ProductBLO implements Serializable{
         this.products = products;
     }
 
-    public List<Product> getMostSeeProduct(int limit) {
+    public List<Product> getMostSeeProduct(int limit, String search) {
         EntityManager em = emf.createEntityManager();
-        List<Product> result = new ArrayList<>();
-        List<String> pros = em.createNamedQuery("Product.findMostPopulatProductId").setMaxResults(limit).getResultList();
-        for (String pro : pros) {
-            result.add((Product) em.createNamedQuery("Product.findById").setParameter("id", pro).getSingleResult());
-        }
+        List<Product> result = em.createNamedQuery("Product.findMostPopulatProductId").setMaxResults(limit).setParameter("search", "%" + search + "%").getResultList();
         return result;
     }
 
@@ -119,22 +115,32 @@ public class ProductBLO implements Serializable{
         return pros;
     }
 
-    public List<Product> getProductByCategory(int limit, String typeId,String search) {
+    public List<Product> getProductByCategory(int limit, String typeId, String search) {
         EntityManager em = emf.createEntityManager();
-        List<Product> pros = em.createNamedQuery("Product.getByCategory").setParameter("typeId", typeId).setParameter("search", "%"+search+"%").setMaxResults(limit).getResultList();
+        List<Product> pros = em.createNamedQuery("Product.getByCategory").setParameter("typeId", typeId).setParameter("search", "%" + search + "%").setMaxResults(limit).getResultList();
         return pros;
     }
 
-    public List<Product> getNextProductByCategory(int counterStart, int limit, String typeId,String search) {
+    public List<Product> getNextProductByCategory(int counterStart, int limit, String typeId, String search) {
         EntityManager em = emf.createEntityManager();
-        List<Product> pros = em.createNamedQuery("Product.getNextByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setParameter("search", "%"+search+"%").setMaxResults(limit).getResultList();
-        return pros;
+        if (typeId.equalsIgnoreCase("main")) {
+            List<Product> pros = em.createNamedQuery("Product.getNext").setParameter("counter", counterStart).setParameter("search", "%" + search + "%").setMaxResults(limit).getResultList();
+            return pros;
+        } else {
+            List<Product> pros = em.createNamedQuery("Product.getNextByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setParameter("search", "%" + search + "%").setMaxResults(limit).getResultList();
+            return pros;
+        }
     }
 
-    public List<Product> getPreProductByCategory(int counterStart, int limit, String typeId,String search) {
+    public List<Product> getPreProductByCategory(int counterStart, int limit, String typeId, String search) {
         EntityManager em = emf.createEntityManager();
-        List<Product> pros = em.createNamedQuery("Product.getBackByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setParameter("search", "%"+search+"%").setMaxResults(limit).getResultList();
-        return pros;
+        if (typeId.equalsIgnoreCase("main")) {
+            List<Product> pros = em.createNamedQuery("Product.getBack").setParameter("counter", counterStart).setParameter("search", "%" + search + "%").setMaxResults(limit).getResultList();
+            return reverse(pros);
+        } else {
+            List<Product> pros = em.createNamedQuery("Product.getBackByCategory").setParameter("typeId", typeId).setParameter("counter", counterStart).setParameter("search", "%" + search + "%").setMaxResults(limit).getResultList();
+            return reverse(pros);
+        }
     }
 
     public Product getProduct(String id) {
@@ -150,7 +156,7 @@ public class ProductBLO implements Serializable{
     public List<Product> findMostPopularProductByColor(String colorId, boolean upper) {
         try {
             EntityManager em = emf.createEntityManager();
-            List<Product> pros = em.createNamedQuery("Product.findMostPopularProductByColor").setParameter("colorId", colorId).setParameter("upper", upper).setMaxResults(2).getResultList();
+            List<Product> pros = em.createNamedQuery("Product.findMostPopularProductByColor").setParameter("colorId", colorId).setParameter("upper", upper).setMaxResults(4).getResultList();
             return pros;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -164,7 +170,7 @@ public class ProductBLO implements Serializable{
             EntityManager em = emf.createEntityManager();
             List<Integer> userIds = em.createNamedQuery("Tracing.finMaxPointUser").setParameter("productId", productId).getResultList();
             for (int userId : userIds) {
-                List<Product> pros = em.createNamedQuery("Tracing.findProductByUser").setParameter("userId", userId).setMaxResults(2).getResultList();
+                List<Product> pros = em.createNamedQuery("Tracing.findProductByUser").setParameter("userId", userId).setMaxResults(4).getResultList();
                 result.addAll(pros);
             }
             return result;
@@ -172,6 +178,14 @@ public class ProductBLO implements Serializable{
             e.printStackTrace();
             return null;
         }
+    }
+    
+    public List<Product> reverse(List<Product> products){
+        List<Product> resuList = new ArrayList<>();
+        for(int i = products.size()-1; i >=0;i--){
+            resuList.add(products.get(i));
+        }
+        return resuList;
     }
 
 }

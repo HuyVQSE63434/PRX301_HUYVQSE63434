@@ -41,17 +41,24 @@ public class LoginController extends HttpServlet {
         try {
             String username = request.getParameter("uname");
             String password = request.getParameter("psw");
-            UserBLO blo = new UserBLO();
-            UserInformation user = blo.checkLogin(username, password);
-            if (user != null) {
+            if (username != null && password != null) {
+                UserBLO blo = new UserBLO();
+                UserInformation user = blo.checkLogin(username, password);
+                if (user != null) {
+                    url = SUCCESS;
+                    HttpSession session = request.getSession();
+                    session.setAttribute("USERID", user.getId());
+                    session.setAttribute("FULLNAME", user.getFullName());
+                } else {
+                    request.setAttribute("username", username);
+                    request.setAttribute("password", password);
+                    request.setAttribute("loginerror", "User name or password is incorrect");
+                }
+            } else {
                 url = SUCCESS;
                 HttpSession session = request.getSession();
-                session.setAttribute("USERID", user.getId());              
-                session.setAttribute("FULLNAME", user.getFullName());
-            } else {
-                request.setAttribute("username", username);
-                request.setAttribute("password", password);
-                request.setAttribute("loginerror", "User name or password is incorrect");
+                session.setAttribute("USERID", 5);
+                session.setAttribute("FULLNAME", "GUEST");
             }
         } catch (Exception ex) {
             System.out.println("Error at LoginController : " + ex.getMessage());

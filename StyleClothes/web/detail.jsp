@@ -68,7 +68,6 @@
                     var domparser = new DOMParser();
                     var doc = domparser.parseFromString(res.responseText, "text/xml");
                     var products = doc.getElementsByTagName('product');
-                    console.log(res.responseText);
                     var output = "";
                     for (var i = 0; i < products.length; i++) {
                         var product = products[i];
@@ -100,7 +99,6 @@
                     var domparser = new DOMParser();
                     var doc = domparser.parseFromString(res.responseText, "text/xml");
                     var products = doc.getElementsByTagName('product');
-                    console.log(res.responseText);
                     var output = "";
                     for (var i = 0; i < products.length; i++) {
                         var product = products[i];
@@ -125,6 +123,11 @@
                 });
 
             }
+            function accessProduct(id) {
+                window.location.href = "/StyleClothes/FirstController?"
+                        + "action=accessProduct"
+                        + "&id=" + id;
+            }
         </script>
     </head>
     <body> 
@@ -143,6 +146,7 @@
                         <li>Màu sắc: <x:out select="$product/colorId/vietnamName" /></li>
                         <li>Phân loại: <x:out select="$product/typeId/name" /></li><br/>
                         <button type="button" class="btn btn-outline-success" onclick="access('<x:out select="$product/link" />', '<x:out select="$product/id" />')">truy cập sản phẩm</button>
+                        <a href="index.jsp" >back to home page</a>
                     </ul>
                 </div>
 

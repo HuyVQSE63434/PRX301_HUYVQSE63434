@@ -38,11 +38,13 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Product.findByPicture", query = "SELECT p FROM Product p WHERE p.picture = :picture")
     , @NamedQuery(name = "Product.findByLink", query = "SELECT p FROM Product p WHERE p.link = :link")
     , @NamedQuery(name = "Product.findByCounter", query = "SELECT p FROM Product p WHERE p.counter = :counter")
-    , @NamedQuery(name = "Product.findMostPopulatProductId", query = "SELECT t.product.id FROM Tracing t ORDER BY t.point ASC")
-    , @NamedQuery(name = "Product.findMostPopularProductByColor",query = "SELECT t.product from Tracing t where t.product.colorId.id = :colorId and t.product.typeId.upper = :upper order by t.point asc")
+    , @NamedQuery(name = "Product.findMostPopulatProductId", query = "SELECT t.product FROM Tracing t where t.product.name like :search ORDER BY t.point ASC")
+    , @NamedQuery(name = "Product.findMostPopularProductByColor", query = "SELECT t.product from Tracing t where t.product.colorId.id = :colorId and t.product.typeId.upper = :upper order by t.point asc")
     , @NamedQuery(name = "Product.getByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.name like :search ORDER BY p.counter ASC")
     , @NamedQuery(name = "Product.getNextByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.counter>:counter and p.name like :search ORDER BY p.counter ASC")
-    , @NamedQuery(name = "Product.getBackByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.counter<:counter and p.name like :search ORDER BY p.counter ASC")
+    , @NamedQuery(name = "Product.getBackByCategory", query = "SELECT p FROM Product p WHERE p.typeId.id = :typeId and p.counter<:counter and p.name like :search ORDER BY p.counter DESC")
+    , @NamedQuery(name = "Product.getNext", query = "SELECT t.product FROM Tracing t where t.product.name like :search and t.product.counter > :counter ORDER BY t.point ASC")
+    , @NamedQuery(name = "Product.getBack", query = "SELECT t.product FROM Tracing t where t.product.name like :search and t.product.counter < :counter ORDER BY t.point DESC")
     , @NamedQuery(name = "Product.getHistoryProducts", query = "SELECT t.product FROM Tracing t where t.tracingPK.userId = :userId order by t.point asc")})
 public class Product implements Serializable {
 
@@ -190,5 +192,5 @@ public class Product implements Serializable {
     public void setTracingCollection(Collection<Tracing> tracingCollection) {
         this.tracingCollection = tracingCollection;
     }
-    
+
 }

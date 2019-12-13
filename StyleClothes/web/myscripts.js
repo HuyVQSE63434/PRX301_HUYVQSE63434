@@ -36,6 +36,10 @@ var isLastPage = false;
 var isFirstPage = false;
 var searchValue = null;
 var num = 0;
+var listProducts = new Array();
+var lr = new Array();
+var nummax = 0;
+var isSearch = false;
 function firstLoading() {
     loadCategories();
     if (currentCategory === "main") {
@@ -95,8 +99,9 @@ function loadCategories() {
 }
 
 function accessCategory(id) {
-    if (id !== "main") {
 
+    listProducts = [];
+    if (id !== "main") {
         var paging = document.getElementById('paging');
         paging.setAttribute("style", "display: block");
         var h3 = document.getElementById('mostseeh3');
@@ -114,8 +119,9 @@ function accessCategory(id) {
     isFirstPage = false;
     sessionStorage.setItem("isFirstPage", isFirstPage);
     var currentNum = document.getElementById('currentNumber');
-    currentNum.innerHTML = 1;
-    sessionStorage.setItem("num", 1);
+    num = 1;
+    currentNum.innerHTML = num;
+    sessionStorage.setItem("num", num);
     console.log("start access category");
     request('POST', 'FirstController', {
         action: 'accessCategory',
@@ -126,6 +132,10 @@ function accessCategory(id) {
         var domparser = new DOMParser();
         var doc = domparser.parseFromString(res.responseText, "text/xml");
         var products = doc.getElementsByTagName('product');
+        console.log("products: " + products);
+        listProducts.push(products);
+        console.log("listProducts: " + listProducts);
+        nummax = 1;
         var output = "";
         if (products.length < 24)
             isLastPage = true;
@@ -174,6 +184,8 @@ function accessCategory(id) {
             var domparser = new DOMParser();
             var doc = domparser.parseFromString(res.responseText, "text/xml");
             var products = doc.getElementsByTagName('product');
+
+            console.log("products: " + products.length);
             console.log(products.length + " " + lastCounter);
             if (products.length <= 0) {
                 isLastPage = true;
@@ -183,6 +195,10 @@ function accessCategory(id) {
                 isLastPage = false;
                 var nextLi = document.getElementById('nextLi');
                 nextLi.setAttribute("class", "page-item");
+                listProducts.push(products);
+
+                console.log("listProducts: " + listProducts.length);
+                nummax = num + 1;
             }
         });
 
@@ -192,67 +208,73 @@ function accessCategory(id) {
 }
 
 function accessNextCategory() {
-    console.log("start access next category");
     isFirstPage = false;
     sessionStorage.setItem("isFirstPage", isFirstPage);
-    console.log("is first page: " + isFirstPage);
-    console.log(isLastPage);
 
     var preli = document.getElementById('preLi');
     preli.setAttribute("class", "page-item");
 
     if (!isLastPage) {
-        console.log("is not last page");
         var currentNum = document.getElementById('currentNumber');
         num = parseInt(currentNum.innerHTML, 10);
-        request('POST', 'FirstController', {
-            action: 'accessNextCategory',
-            id: currentCategory,
-            lastCounter: lastCounter,
-            txtsearch: searchValue
-        }, function (res) {
-            var container = document.getElementById('productContainer');
-            var domparser = new DOMParser();
-            var doc = domparser.parseFromString(res.responseText, "text/xml");
-            var products = doc.getElementsByTagName('product');
-            var output = "";
-            if (products.length > 0) {
-                for (var i = 0; i < products.length; i++) {
-                    var product = products[i];
-                    var id = product.childNodes[5].firstChild.nodeValue;
-                    var name = product.querySelector('name').textContent;
-                    var price = product.querySelector('price').textContent;
-                    var picture = product.querySelector('picture').textContent;
-                    var link = product.querySelector('link').textContent;
-                    var counter = product.querySelector('counter').textContent;
-                    if (i === 0) {
-                        firstCounter = counter;
-                        sessionStorage.setItem("counter", firstCounter - 1);
-                        console.log(firstCounter);
-                    }
-                    if (i === (products.length - 1)) {
-                        lastCounter = counter;
-                        console.log(lastCounter);
-                    }
-                    var idstr = "'" + id + "'";
-                    output += '<div class="col mb-4">'
-                            + '<div class="card" onclick="accessProduct(' + idstr + ')">'
-                            + '<img src="' + picture + '" class="card-img-top" alt="...">'
-                            + '<div class="card-body">'
-                            + '<h5 class="card-title">' + name + '</h5>'
-                            + '<p class="card-text">' + price + 'vnđ</p>'
-                            + '</div>'
-                            + '</div>'
-                            + '</div>';
+//        request('POST', 'FirstController', {
+//            action: 'accessNextCategory',
+//            id: currentCategory,
+//            lastCounter: lastCounter,
+//            txtsearch: searchValue
+//        }, function (res) {
+
+        var container = document.getElementById('productContainer');
+//        var domparser = new DOMParser();
+//        var doc = domparser.parseFromString(res.responseText, "text/xml");
+//        var products = doc.getElementsByTagName('product');
+        var products = [];
+        if (isSearch) {
+            products = listProductResult[num];
+        } else {
+            products = listProducts[num];
+        }
+        console.log(products);
+        var output = "";
+        if (products.length > 0) {
+            for (var i = 0; i < products.length; i++) {
+                var product = products[i];
+                console.log(product);
+                var id = product.childNodes[5].firstChild.nodeValue;
+                var name = product.querySelector('name').textContent;
+                var price = product.querySelector('price').textContent;
+                var picture = product.querySelector('picture').textContent;
+                var link = product.querySelector('link').textContent;
+                var counter = product.querySelector('counter').textContent;
+                if (i === 0) {
+                    firstCounter = counter;
+                    sessionStorage.setItem("counter", firstCounter - 1);
+                    console.log(firstCounter);
                 }
-                container.innerHTML = output;
-                num = num + 1;
-                currentNum.innerHTML = num;
-                sessionStorage.setItem("num", num);
-                isLastPage = false;
-                console.log("load next success");
+                if (i === (products.length - 1)) {
+                    lastCounter = counter;
+                    console.log(lastCounter);
+                }
+                var idstr = "'" + id + "'";
+                output += '<div class="col mb-4">'
+                        + '<div class="card" onclick="accessProduct(' + idstr + ')">'
+                        + '<img src="' + picture + '" class="card-img-top" alt="...">'
+                        + '<div class="card-body">'
+                        + '<h5 class="card-title">' + name + '</h5>'
+                        + '<p class="card-text">' + price + 'vnđ</p>'
+                        + '</div>'
+                        + '</div>'
+                        + '</div>';
+            }
+            container.innerHTML = output;
+            num = num + 1;
+            currentNum.innerHTML = num;
+            sessionStorage.setItem("num", num);
+            isLastPage = false;
+            console.log("load next success");
 
 
+            if (num === (nummax)) {
                 request('POST', 'FirstController', {
                     action: 'accessNextCategory',
                     id: currentCategory,
@@ -271,39 +293,48 @@ function accessNextCategory() {
                         isLastPage = false;
                         var nextLi = document.getElementById('nextLi');
                         nextLi.setAttribute("class", "page-item");
+                        listProducts.push(products);
+                        console.log("listProducts: " + listProducts.length);
+                        nummax = nummax + 1;
                     }
                 });
-
-
-            } else {
-                isLastPage = true;
-                var nextli = document.getElementById('nextLi');
-                nextli.setAttribute("class", "page-item disabled");
             }
-        });
+
+
+        } else {
+            isLastPage = true;
+            var nextli = document.getElementById('nextLi');
+            nextli.setAttribute("class", "page-item disabled");
+        }
+//        });
     }
 }
 
 function accessPreCategory() {
-    console.log("start access pre category: " + currentCategory);
     isLastPage = false;
-    console.log("is first page = " + isFirstPage);
     var nextli = document.getElementById('nextLi');
     nextli.setAttribute("class", "page-item");
     if (!isFirstPage) {
         console.log("is not first page");
         var currentNum = document.getElementById('currentNumber');
         var num = parseInt(currentNum.innerHTML, 10);
-        request('POST', 'FirstController', {
-            action: 'accessPreCategory',
-            id: currentCategory,
-            firstCounter: firstCounter,
-            txtsearch: searchValue
-        }, function (res) {
-            var container = document.getElementById('productContainer');
-            var domparser = new DOMParser();
-            var doc = domparser.parseFromString(res.responseText, "text/xml");
-            var products = doc.getElementsByTagName('product');
+//        request('POST', 'FirstController', {
+//            action: 'accessPreCategory',
+//            id: currentCategory,
+//            firstCounter: firstCounter,
+//            txtsearch: searchValue
+//        }, function (res) {
+        var container = document.getElementById('productContainer');
+//        var domparser = new DOMParser();
+//        var doc = domparser.parseFromString(res.responseText, "text/xml");
+//        var products = doc.getElementsByTagName('product');
+        if ((num - 1) > 0) {
+            var products = [];
+            if (isSearch) {
+                products = listProductResult[num - 2];
+            } else {
+                products = listProducts[num - 2];
+            }
             var output = "";
             if (products.length > 0) {
                 for (var i = 0; i < products.length; i++) {
@@ -341,51 +372,145 @@ function accessPreCategory() {
                 isFirstPage = false;
                 sessionStorage.setItem("isFirstPage", isFirstPage);
                 console.log("load pre success");
+            }
 
-
-                request('POST', 'FirstController', {
-                    action: 'accessPreCategory',
-                    id: currentCategory,
-                    firstCounter: firstCounter,
-                    txtsearch: searchValue
-                }, function (res) {
-                    var domparser = new DOMParser();
-                    var doc = domparser.parseFromString(res.responseText, "text/xml");
-                    var products = doc.getElementsByTagName('product');
-                    if (products.length <= 0) {
-                        isFirstPage = true;
-                        sessionStorage.setItem("isFirstPage", isFirstPage);
-
-                        var preli = document.getElementById('preLi');
-                        preli.setAttribute("class", "page-item disabled");
-                    } else {
-                        isFirstPage = false;
-                        sessionStorage.setItem("isFirstPage", isFirstPage);
-
-                        var preli = document.getElementById('preLi');
-                        preli.setAttribute("class", "page-item");
-                    }
-                });
-
-
-            } else {
+            if (num === 1) {
                 isFirstPage = true;
                 sessionStorage.setItem("isFirstPage", isFirstPage);
 
                 var preli = document.getElementById('preLi');
                 preli.setAttribute("class", "page-item disabled");
             }
-        });
+
+//            request('POST', 'FirstController', {
+//                action: 'accessPreCategory',
+//                id: currentCategory,
+//                firstCounter: firstCounter,
+//                txtsearch: searchValue
+//            }, function (res) {
+//                var domparser = new DOMParser();
+//                var doc = domparser.parseFromString(res.responseText, "text/xml");
+//                var products = doc.getElementsByTagName('product');
+//                if (products.length <= 0) {
+//                    isFirstPage = true;
+//                    sessionStorage.setItem("isFirstPage", isFirstPage);
+//
+//                    var preli = document.getElementById('preLi');
+//                    preli.setAttribute("class", "page-item disabled");
+//                } else {
+//                    isFirstPage = false;
+//                    sessionStorage.setItem("isFirstPage", isFirstPage);
+//
+//                    var preli = document.getElementById('preLi');
+//                    preli.setAttribute("class", "page-item");
+//                }
+//            });
+
+
+        }
+//        else {
+//            isFirstPage = true;
+//            sessionStorage.setItem("isFirstPage", isFirstPage);
+//
+//            var preli = document.getElementById('preLi');
+//            preli.setAttribute("class", "page-item disabled");
+//        }
+//        });
     }
 }
 
 
 function search() {
+    lr = [];
     console.log("search started");
     searchValue = document.getElementById('txtsearch').value;
-    sessionStorage.setItem("searchValue", searchValue);
-    console.log('search value: ' + searchValue);
-    accessCategory(currentCategory);
+    if (searchValue === "") {
+        isSearch = false;
+        if(listProducts[0].length >0){
+        loadFirstSearch();            
+        }else{
+            accessCategory(currentCategory);
+        }
+    } else {
+        isSearch = true;
+        let productsSearch = [];
+        var countproduct = 0;
+        for (var j = 0; j < listProducts.length; j++) {
+            console.log("list number: " + j);
+            var products = listProducts[j];
+            for (var i = 0; i < products.length; i++) {
+                console.log(i);
+                var product = products[i];
+                var name = product.querySelector('name').textContent;
+                if (name.toString().indexOf(searchValue, 0) > -1) {
+                    countproduct = countproduct + 1;
+                    productsSearch.push(product);
+                    if ((countproduct % 24) === 0) {
+                        lr.push(productsSearch);
+                        while (productsSearch.length > 0) {
+                            productsSearch.pop();
+                        }
+                    }
+                }
+            }
+        }
+        if (productsSearch.length > 0) {
+            console.log("start push 2");
+            lr.push(productsSearch);
+        }
+        sessionStorage.setItem("searchValue", searchValue);
+//    accessCategory(currentCategory);
+        loadFirstSearch(lr[0]);
+    }
+}
+
+function loadFirstSearch(values) {
+    var container = document.getElementById('productContainer');
+    var currentNum = document.getElementById('currentNumber');
+    num = 1;
+    currentNum.innerHTML = num;
+    sessionStorage.setItem("num", num);
+    var products = values;
+    if (isSearch) {
+    } else {
+        products = listProducts[0];
+    }
+    var output = "";
+    for (var i = 0; i < products.length; i++) {
+        var product = products[i];
+        var id = product.childNodes[5].firstChild.nodeValue;
+        var name = product.querySelector('name').textContent;
+        var price = product.querySelector('price').textContent;
+        var picture = product.querySelector('picture').textContent;
+        var link = product.querySelector('link').textContent;
+        var counter = product.querySelector('counter').textContent;
+        if (i === 0) {
+            firstCounter = counter;
+            sessionStorage.setItem("counter", firstCounter - 1);
+            console.log(firstCounter);
+        }
+        if (i === (products.length - 1)) {
+            lastCounter = counter;
+            console.log(lastCounter);
+        }
+        var idstr = "'" + id + "'";
+        output += '<div class="col mb-4">'
+                + '<div class="card"  onclick="accessProduct(' + idstr + ')">'
+                + '<img src="' + picture + '" class="card-img-top" alt="...">'
+                + '<div class="card-body">'
+                + '<h5 class="card-title">' + name + '</h5>'
+                + '<p class="card-text">' + price + 'vnđ</p>'
+                + '</div>'
+                + '</div>'
+                + '</div>';
+    }
+
+    container.innerHTML = output;
+    isFirstPage = true;
+    sessionStorage.setItem("isFirstPage", isFirstPage);
+
+    var preli = document.getElementById('preLi');
+    preli.setAttribute("class", "page-item disabled");
 }
 
 function accessProduct(id) {

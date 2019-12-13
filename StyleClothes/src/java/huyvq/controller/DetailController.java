@@ -119,14 +119,16 @@ public class DetailController extends HttpServlet {
             List<Product> p = problo.findMostPopularProductByColor(m.getColor1().getId(), !upper);
             mixProducts.addAll(p);
         }
-        String xmlString = XMLUtils.marshallToString(new Products(mixProducts));
+        List<Product> result = mixProducts.subList(0, 7);
+        String xmlString = XMLUtils.marshallToString(new Products(result));
         out.print(xmlString);
     }
 
     private void findSuggestClothes(ProductBLO problo, String productId, PrintWriter out) {
         //find suggest clothes
         List<Product> suggestProducts = problo.findSuggestProduct(productId);
-        String xmlString = XMLUtils.marshallToString(new Products(suggestProducts));
+        List<Product> result = suggestProducts.subList(0, 7);
+        String xmlString = XMLUtils.marshallToString(new Products(result));
         out.print(xmlString);
     }
 

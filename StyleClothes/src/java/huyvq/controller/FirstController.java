@@ -66,9 +66,9 @@ public class FirstController extends HttpServlet {
                     accessPreCategory(id.trim(), firstCounter, out, search);
                     break;
                 case "accessProduct":
-                    String productString = accessProduct(id, out);                  
+                    String productString = accessProduct(id, out);
                     HttpSession session = request.getSession();
-                    countingViewTime(id,session.getAttribute("USERID"));
+                    countingViewTime(id, session.getAttribute("USERID"));
                     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                     DocumentBuilder db = dbf.newDocumentBuilder();
                     Document doc = db.parse(new InputSource(new StringReader(productString)));
@@ -142,14 +142,18 @@ public class FirstController extends HttpServlet {
     }
 
     private void accessCategory(String id, PrintWriter out, String search) {
-        ProductBLO blo = new ProductBLO();
-        Products products = new Products();
-        if (search.equals("null")) {
-            search = "";
+        if (id.equalsIgnoreCase("main")) {
+            accessMostSeeProduct(out, search);
+        } else {
+            ProductBLO blo = new ProductBLO();
+            Products products = new Products();
+            if (search.equals("null")) {
+                search = "";
+            }
+            products.setProduct(blo.getProductByCategory(24, id, search));
+            String productsString = XMLUtils.marshallToString(products);
+            out.print(productsString);
         }
-        products.setProduct(blo.getProductByCategory(24, id, search));
-        String productsString = XMLUtils.marshallToString(products);
-        out.print(productsString);
     }
 
     private void accessNextCategory(String id, String lastCounter, PrintWriter out, String search) {
@@ -189,9 +193,20 @@ public class FirstController extends HttpServlet {
     private void countingViewTime(String id, Object userid) {
         TracingBLO blo = new TracingBLO();
         try {
-            blo.countingViewTime(id,(int) userid);
+            blo.countingViewTime(id, (int) userid);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void accessMostSeeProduct(PrintWriter out, String search) {
+        ProductBLO blo = new ProductBLO();
+        Products products = new Products();
+        if (search.equals("null")) {
+            search = "";
+        }
+        products.setProduct(blo.getMostSeeProduct(24, search));
+        String productsString = XMLUtils.marshallToString(products);
+        out.print(productsString);
     }
 }
