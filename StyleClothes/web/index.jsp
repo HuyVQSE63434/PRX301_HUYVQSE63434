@@ -30,6 +30,10 @@
                 <form action="LoginController" method="post">
                     <input type="submit" style="float: right" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true" value="logout"/>  
                 </form>
+
+                <form action="CrawlController" method="POST">
+                    <input type="submit" style="float: right; margin: 10px;" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true" value="crawl" />
+                </form>
             </c:if>
         </div>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">

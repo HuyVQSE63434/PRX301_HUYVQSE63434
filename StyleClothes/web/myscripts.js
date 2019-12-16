@@ -42,37 +42,44 @@ var nummax = 0;
 var isSearch = false;
 function firstLoading() {
     loadCategories();
-    if (currentCategory === "main") {
+    currentCategory = sessionStorage.getItem("currentCategory");
+    if (currentCategory === "main" || currentCategory == null) {
+        currentCategory = "main";
         accessCategory(currentCategory);
         var paging = document.getElementById('paging');
         paging.setAttribute("style", "display: none");
         var h3 = document.getElementById('mostseeh3');
         h3.setAttribute("style", "display: block");
     } else {
-        currentCategory = sessionStorage.getItem("currentCategory");
-        console.log("current category: " + currentCategory);
-        lastCounter = sessionStorage.getItem("counter");
-        console.log("last counter: " + lastCounter);
-        isFirstPage = sessionStorage.getItem("isFirstPage");
-        console.log("is first page: " + isFirstPage);
-        searchValue = sessionStorage.getItem("searchValue");
-        console.log("search value: " + searchValue);
         num = sessionStorage.getItem("num");
-        console.log("num: " + num);
-        if (currentCategory != null) {
-            if (isFirstPage == 'true') {
-                console.log("access category hihi");
-                accessCategory(currentCategory);
-            } else {
-                console.log("access next category hihi");
-                accessNextCategory();
-                var currentNum = document.getElementById('currentNumber');
-                currentNum.innerHTML = num;
-                var preli = document.getElementById('preLi');
-                preli.setAttribute("class", "page-item");
-                console.log("done access next category hihi");
-            }
-        }
+        if (num == "1") {
+            accessCategory(currentCategory);
+        } else
+            loadLastListProduct(sessionStorage.getItem("num"));
+//        currentCategory = sessionStorage.getItem("currentCategory");
+//        console.log("current category: " + currentCategory);
+//        lastCounter = sessionStorage.getItem("counter");
+//        console.log("last counter: " + lastCounter);
+//        isFirstPage = sessionStorage.getItem("isFirstPage");
+//        console.log("is first page: " + isFirstPage);
+//        searchValue = sessionStorage.getItem("searchValue");
+//        console.log("search value: " + searchValue);
+//        num = sessionStorage.getItem("num");
+//        console.log("num: " + num);
+//        if (currentCategory != null) {
+//            if (isFirstPage == 'true') {
+//                console.log("access category hihi");
+//                accessCategory(currentCategory);
+//            } else {
+//                console.log("access next category hihi");
+//                accessNextCategory();
+//                var currentNum = document.getElementById('currentNumber');
+//                currentNum.innerHTML = num;
+//                var preli = document.getElementById('preLi');
+//                preli.setAttribute("class", "page-item");
+//                console.log("done access next category hihi");
+//            }
+//        }
     }
 }
 
@@ -80,7 +87,6 @@ function loadCategories() {
     request('POST', 'FirstController', {
         action: 'category'
     }, function (res) {
-        console.log(res);
         var container = document.getElementById('ulCategories');
         var domparser = new DOMParser();
         var doc = domparser.parseFromString(res.responseText, "text/xml");
@@ -122,7 +128,6 @@ function accessCategory(id) {
     num = 1;
     currentNum.innerHTML = num;
     sessionStorage.setItem("num", num);
-    console.log("start access category");
     request('POST', 'FirstController', {
         action: 'accessCategory',
         id: id,
@@ -132,9 +137,7 @@ function accessCategory(id) {
         var domparser = new DOMParser();
         var doc = domparser.parseFromString(res.responseText, "text/xml");
         var products = doc.getElementsByTagName('product');
-        console.log("products: " + products);
         listProducts.push(products);
-        console.log("listProducts: " + listProducts);
         nummax = 1;
         var output = "";
         if (products.length < 24)
@@ -150,11 +153,9 @@ function accessCategory(id) {
             if (i === 0) {
                 firstCounter = counter;
                 sessionStorage.setItem("counter", firstCounter - 1);
-                console.log(firstCounter);
             }
             if (i === (products.length - 1)) {
                 lastCounter = counter;
-                console.log(lastCounter);
             }
             var idstr = "'" + id + "'";
             output += '<div class="col mb-4">'
@@ -184,9 +185,6 @@ function accessCategory(id) {
             var domparser = new DOMParser();
             var doc = domparser.parseFromString(res.responseText, "text/xml");
             var products = doc.getElementsByTagName('product');
-
-            console.log("products: " + products.length);
-            console.log(products.length + " " + lastCounter);
             if (products.length <= 0) {
                 isLastPage = true;
                 var nextLi = document.getElementById('nextLi');
@@ -196,8 +194,6 @@ function accessCategory(id) {
                 var nextLi = document.getElementById('nextLi');
                 nextLi.setAttribute("class", "page-item");
                 listProducts.push(products);
-
-                console.log("listProducts: " + listProducts.length);
                 nummax = num + 1;
             }
         });
@@ -230,82 +226,101 @@ function accessNextCategory() {
 //        var products = doc.getElementsByTagName('product');
         var products = [];
         if (isSearch) {
-            products = listProductResult[num];
+            products = lr[num];
+            console.log("take from list result");
         } else {
             products = listProducts[num];
         }
-        console.log(products);
         var output = "";
-        if (products.length > 0) {
-            for (var i = 0; i < products.length; i++) {
-                var product = products[i];
-                console.log(product);
-                var id = product.childNodes[5].firstChild.nodeValue;
-                var name = product.querySelector('name').textContent;
-                var price = product.querySelector('price').textContent;
-                var picture = product.querySelector('picture').textContent;
-                var link = product.querySelector('link').textContent;
-                var counter = product.querySelector('counter').textContent;
-                if (i === 0) {
-                    firstCounter = counter;
-                    sessionStorage.setItem("counter", firstCounter - 1);
-                    console.log(firstCounter);
-                }
-                if (i === (products.length - 1)) {
-                    lastCounter = counter;
-                    console.log(lastCounter);
-                }
-                var idstr = "'" + id + "'";
-                output += '<div class="col mb-4">'
-                        + '<div class="card" onclick="accessProduct(' + idstr + ')">'
-                        + '<img src="' + picture + '" class="card-img-top" alt="...">'
-                        + '<div class="card-body">'
-                        + '<h5 class="card-title">' + name + '</h5>'
-                        + '<p class="card-text">' + price + 'vnđ</p>'
-                        + '</div>'
-                        + '</div>'
-                        + '</div>';
-            }
-            container.innerHTML = output;
-            num = num + 1;
-            currentNum.innerHTML = num;
-            sessionStorage.setItem("num", num);
-            isLastPage = false;
-            console.log("load next success");
-
-
-            if (num === (nummax)) {
-                request('POST', 'FirstController', {
-                    action: 'accessNextCategory',
-                    id: currentCategory,
-                    lastCounter: lastCounter,
-                    txtsearch: searchValue
-                }, function (res) {
-                    var domparser = new DOMParser();
-                    var doc = domparser.parseFromString(res.responseText, "text/xml");
-                    var products = doc.getElementsByTagName('product');
-                    console.log(products.length + " " + lastCounter);
-                    if (products.length <= 0) {
-                        isLastPage = true;
-                        var nextLi = document.getElementById('nextLi');
-                        nextLi.setAttribute("class", "page-item disabled");
-                    } else {
-                        isLastPage = false;
-                        var nextLi = document.getElementById('nextLi');
-                        nextLi.setAttribute("class", "page-item");
-                        listProducts.push(products);
-                        console.log("listProducts: " + listProducts.length);
-                        nummax = nummax + 1;
+        if (products != null) {
+            if (products.length > 0) {
+                for (var i = 0; i < products.length; i++) {
+                    var product = products[i];
+                    var id = product.childNodes[5].firstChild.nodeValue;
+                    var name = product.querySelector('name').textContent;
+                    var price = product.querySelector('price').textContent;
+                    var picture = product.querySelector('picture').textContent;
+                    var link = product.querySelector('link').textContent;
+                    var counter = product.querySelector('counter').textContent;
+                    if (i === 0) {
+                        firstCounter = counter;
+                        sessionStorage.setItem("counter", firstCounter - 1);
                     }
-                });
+                    if (i === (products.length - 1)) {
+                        lastCounter = counter;
+                    }
+                    var idstr = "'" + id + "'";
+                    output += '<div class="col mb-4">'
+                            + '<div class="card" onclick="accessProduct(' + idstr + ')">'
+                            + '<img src="' + picture + '" class="card-img-top" alt="...">'
+                            + '<div class="card-body">'
+                            + '<h5 class="card-title">' + name + '</h5>'
+                            + '<p class="card-text">' + price + 'vnđ</p>'
+                            + '</div>'
+                            + '</div>'
+                            + '</div>';
+                }
+                container.innerHTML = output;
+                num = num + 1;
+                currentNum.innerHTML = num;
+                sessionStorage.setItem("num", num);
+                isLastPage = false;
+
+
+                if (num === (nummax)) {
+                    request('POST', 'FirstController', {
+                        action: 'accessNextCategory',
+                        id: currentCategory,
+                        lastCounter: lastCounter,
+                        txtsearch: searchValue
+                    }, function (res) {
+                        var domparser = new DOMParser();
+                        var doc = domparser.parseFromString(res.responseText, "text/xml");
+                        var products = doc.getElementsByTagName('product');
+                        if (products.length <= 0) {
+                            isLastPage = true;
+                            var nextLi = document.getElementById('nextLi');
+                            nextLi.setAttribute("class", "page-item disabled");
+                        } else {
+                            isLastPage = false;
+                            var nextLi = document.getElementById('nextLi');
+                            nextLi.setAttribute("class", "page-item");
+                            listProducts.push(products);
+                            nummax = nummax + 1;
+                        }
+                    });
+                }
+
+
+            } else {
+                isLastPage = true;
+                var nextli = document.getElementById('nextLi');
+                nextli.setAttribute("class", "page-item disabled");
             }
-
-
         } else {
-            isLastPage = true;
-            var nextli = document.getElementById('nextLi');
-            nextli.setAttribute("class", "page-item disabled");
+            request('POST', 'FirstController', {
+                action: 'accessNextCategory',
+                id: currentCategory,
+                lastCounter: lastCounter,
+                txtsearch: searchValue
+            }, function (res) {
+                var domparser = new DOMParser();
+                var doc = domparser.parseFromString(res.responseText, "text/xml");
+                var products = doc.getElementsByTagName('product');
+                if (products.length <= 0) {
+                    isLastPage = true;
+                    var nextLi = document.getElementById('nextLi');
+                    nextLi.setAttribute("class", "page-item disabled");
+                } else {
+                    isLastPage = false;
+                    if(isSearch){
+                        lr.push(products);
+                    }else listProducts.push(products);
+                    nummax = nummax + 1;
+                }
+            });
         }
+
 //        });
     }
 }
@@ -315,7 +330,6 @@ function accessPreCategory() {
     var nextli = document.getElementById('nextLi');
     nextli.setAttribute("class", "page-item");
     if (!isFirstPage) {
-        console.log("is not first page");
         var currentNum = document.getElementById('currentNumber');
         var num = parseInt(currentNum.innerHTML, 10);
 //        request('POST', 'FirstController', {
@@ -331,7 +345,7 @@ function accessPreCategory() {
         if ((num - 1) > 0) {
             var products = [];
             if (isSearch) {
-                products = listProductResult[num - 2];
+                products = lr[num - 2];
             } else {
                 products = listProducts[num - 2];
             }
@@ -348,11 +362,9 @@ function accessPreCategory() {
                     if (i === 0) {
                         firstCounter = counter;
                         sessionStorage.setItem("counter", firstCounter - 1);
-                        console.log(firstCounter);
                     }
                     if (i === (products.length - 1)) {
                         lastCounter = counter;
-                        console.log(lastCounter);
                     }
                     var idstr = "'" + id + "'";
                     output += '<div class="col mb-4">'
@@ -371,7 +383,6 @@ function accessPreCategory() {
                 sessionStorage.setItem("num", num);
                 isFirstPage = false;
                 sessionStorage.setItem("isFirstPage", isFirstPage);
-                console.log("load pre success");
             }
 
             if (num === 1) {
@@ -422,24 +433,17 @@ function accessPreCategory() {
 
 function search() {
     lr = [];
-    console.log("search started");
     searchValue = document.getElementById('txtsearch').value;
     if (searchValue === "") {
         isSearch = false;
-        if(listProducts[0].length >0){
-        loadFirstSearch();            
-        }else{
-            accessCategory(currentCategory);
-        }
+        accessCategory(currentCategory);
     } else {
         isSearch = true;
         let productsSearch = [];
         var countproduct = 0;
         for (var j = 0; j < listProducts.length; j++) {
-            console.log("list number: " + j);
             var products = listProducts[j];
             for (var i = 0; i < products.length; i++) {
-                console.log(i);
                 var product = products[i];
                 var name = product.querySelector('name').textContent;
                 if (name.toString().indexOf(searchValue, 0) > -1) {
@@ -455,10 +459,10 @@ function search() {
             }
         }
         if (productsSearch.length > 0) {
-            console.log("start push 2");
             lr.push(productsSearch);
         }
         sessionStorage.setItem("searchValue", searchValue);
+        nummax = lr.length;
 //    accessCategory(currentCategory);
         loadFirstSearch(lr[0]);
     }
@@ -487,11 +491,9 @@ function loadFirstSearch(values) {
         if (i === 0) {
             firstCounter = counter;
             sessionStorage.setItem("counter", firstCounter - 1);
-            console.log(firstCounter);
         }
         if (i === (products.length - 1)) {
             lastCounter = counter;
-            console.log(lastCounter);
         }
         var idstr = "'" + id + "'";
         output += '<div class="col mb-4">'
@@ -532,5 +534,98 @@ function accessProduct(id) {
 }
 
 
+function loadLastListProduct(end) {
+    listProducts = [];
+    var id = sessionStorage.getItem("currentCategory");
+    if (id !== "main") {
+        var paging = document.getElementById('paging');
+        paging.setAttribute("style", "display: block");
+        var h3 = document.getElementById('mostseeh3');
+        h3.setAttribute("style", "display: none");
+    } else {
+        var paging = document.getElementById('paging');
+        paging.setAttribute("style", "display: none");
+        var h3 = document.getElementById('mostseeh3');
+        h3.setAttribute("style", "display: block");
+    }
+    isLastPage = false;
+    isFirstPage = false;
+    sessionStorage.setItem("isFirstPage", isFirstPage);
+    var currentNum = document.getElementById('currentNumber');
+    num = end - 1;
+    currentNum.innerHTML = num;
+    sessionStorage.setItem("num", num);
+    request('POST', 'FirstController', {
+        action: 'accessCategory',
+        id: id,
+        txtsearch: searchValue
+    }, function (res) {
+        var domparser = new DOMParser();
+        var doc = domparser.parseFromString(res.responseText, "text/xml");
+        var products = doc.getElementsByTagName('product');
+        listProducts.push(products);
+        nummax = listProducts.length;
+        if (products.length < 24)
+            isLastPage = true;
+        for (var i = 0; i < products.length; i++) {
+            var product = products[i];
+            var counter = product.querySelector('counter').textContent;
+            if (i === 0) {
+                firstCounter = counter;
+                sessionStorage.setItem("counter", firstCounter - 1);
+            }
+            if (i === (products.length - 1)) {
+                lastCounter = counter;
+            }
+        }
+        isFirstPage = true;
+        sessionStorage.setItem("isFirstPage", isFirstPage);
+        var preli = document.getElementById('preLi');
+        preli.setAttribute("class", "page-item disabled");
+        if (nummax <= end) {
+            loadNext(end);
+        }
+    });
+}
 
+function loadNext(end) {
+    request('POST', 'FirstController', {
+        action: 'accessNextCategory',
+        id: currentCategory,
+        lastCounter: lastCounter,
+        txtsearch: searchValue
+    }, function (res) {
+        var domparser = new DOMParser();
+        var doc = domparser.parseFromString(res.responseText, "text/xml");
+        var products = doc.getElementsByTagName('product');
+        if (products.length <= 0) {
+            accessNextCategory();
+//            isLastPage = true;
+//            var nextLi = document.getElementById('nextLi');
+//            nextLi.setAttribute("class", "page-item disabled");
+        } else {
+            isLastPage = false;
+            var nextLi = document.getElementById('nextLi');
+            nextLi.setAttribute("class", "page-item");
+            listProducts.push(products);
+            nummax = listProducts.length;
+            for (var i = 0; i < products.length; i++) {
+                var product = products[i];
+                var counter = product.querySelector('counter').textContent;
+                if (i === 0) {
+                    firstCounter = counter;
+                    sessionStorage.setItem("counter", firstCounter - 1);
+                }
+                if (i === (products.length - 1)) {
+                    lastCounter = counter;
+                }
+            }
+            if (nummax <= end) {
+                loadNext(end);
+            } else {
+                accessNextCategory();
+            }
+        }
+    });
+}
 //========================================================================================
